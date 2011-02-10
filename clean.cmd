@@ -1,0 +1,2 @@
+del *.xml
+del *.html
