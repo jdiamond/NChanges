@@ -78,12 +78,16 @@ namespace MyNamespace
                                                Name = "MyClass",
                                                Namespace = "MyNamespace",
                                                Kind = TypeKind.Class,
+                                               Obsolete = true,
+                                               ObsoleteMessage = "I'm obsolete!",
                                                Members =
                                                    {
                                                        new MemberInfo
                                                        {
                                                            Name = "MyMethod",
                                                            Kind = MemberKind.Method,
+                                                           Obsolete = true,
+                                                           ObsoleteMessage = "I'm also obsolete!",
                                                            Parameters =
                                                                {
                                                                    new ParameterInfo
@@ -120,9 +124,9 @@ namespace MyNamespace
 
             Assert.AreEqual(
 @"<assembly name=""MyAssembly"" version=""1"">
-  <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"">
+  <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"" obsolete=""True"" obsoleteMessage=""I'm obsolete!"">
     <change kind=""Added"" version=""1"" />
-    <member name=""MyMethod"" kind=""Method"">
+    <member name=""MyMethod"" kind=""Method"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
       <change kind=""Added"" version=""1"" old=""old value"" new=""new value"" />
       <param name=""myParameter"" type=""System.Int32"" />
     </member>
@@ -138,8 +142,8 @@ namespace MyNamespace
 
             XML.UseReader(assemblyInfo.ReadXml,
 @"<assembly name=""MyAssembly"" version=""1"">
-  <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"">
-    <member name=""MyMethod"" kind=""Method"">
+  <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"" obsolete=""True"" obsoleteMessage=""I'm obsolete!"">
+    <member name=""MyMethod"" kind=""Method"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
       <param name=""myParameter"" type=""System.Int32"" />
     </member>
   </type>
@@ -150,8 +154,12 @@ namespace MyNamespace
             Assert.AreEqual("MyClass", assemblyInfo.Types.Single().Name);
             Assert.AreEqual("MyNamespace", assemblyInfo.Types.Single().Namespace);
             Assert.AreEqual(TypeKind.Class, assemblyInfo.Types.Single().Kind);
+            Assert.IsTrue(assemblyInfo.Types.Single().Obsolete);
+            Assert.AreEqual("I'm obsolete!", assemblyInfo.Types.Single().ObsoleteMessage);
             Assert.AreEqual("MyMethod", assemblyInfo.Types.Single().Members.Single().Name);
             Assert.AreEqual(MemberKind.Method, assemblyInfo.Types.Single().Members.Single().Kind);
+            Assert.IsTrue(assemblyInfo.Types.Single().Members.Single().Obsolete);
+            Assert.AreEqual("I'm also obsolete!", assemblyInfo.Types.Single().Members.Single().ObsoleteMessage);
             Assert.AreEqual("myParameter", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Name);
             Assert.AreEqual("System.Int32", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Type);
         }

@@ -14,6 +14,8 @@ namespace NChanges.Core
         public string Name { get; set; }
         public string Namespace { get; set; }
         public TypeKind Kind { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
         public ICollection<MemberInfo> Members { get { return _members; } }
         public ICollection<TypeChangeInfo> Changes { get { return _changes; } }
 
@@ -41,6 +43,14 @@ namespace NChanges.Core
             else if (type.IsValueType)
             {
                 Kind = TypeKind.ValueType;
+            }
+
+            var obsoleteAttribute = (ObsoleteAttribute)Attribute.GetCustomAttribute(type, typeof(ObsoleteAttribute));
+
+            if (obsoleteAttribute != null)
+            {
+                Obsolete = true;
+                ObsoleteMessage = obsoleteAttribute.Message;
             }
 
             foreach (var member in type.GetMembers())
@@ -114,6 +124,16 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("namespace", Namespace);
             xmlWriter.WriteAttributeString("kind", Kind.ToString());
 
+            if (Obsolete)
+            {
+                xmlWriter.WriteAttributeString("obsolete", Obsolete.ToString());
+            }
+
+            if (ObsoleteMessage != null)
+            {
+                xmlWriter.WriteAttributeString("obsoleteMessage", ObsoleteMessage);
+            }
+
             foreach (var change in Changes)
             {
                 change.WriteXml(xmlWriter);
@@ -132,6 +152,8 @@ namespace NChanges.Core
             Name = xmlReader.GetAttribute("name");
             Namespace = xmlReader.GetAttribute("namespace");
             Kind = (TypeKind)Enum.Parse(typeof(TypeKind), xmlReader.GetAttribute("kind"));
+            Obsolete = string.Equals(xmlReader.GetAttribute("obsolete"), "true", StringComparison.OrdinalIgnoreCase);
+            ObsoleteMessage = xmlReader.GetAttribute("obsoleteMessage");
 
             if (xmlReader.ReadToDescendant("member"))
             {

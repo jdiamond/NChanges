@@ -13,6 +13,8 @@ namespace NChanges.Core.Tests
                         {
                             Name = "MyType",
                             Kind = TypeKind.Class,
+                            Obsolete = true,
+                            ObsoleteMessage = "I'm obsolete!",
                             Members =
                                 {
                                     new MemberInfo
@@ -31,6 +33,8 @@ namespace NChanges.Core.Tests
             Assert.AreNotSame(type1, type2);
             Assert.AreEqual(type1.Name, type2.Name);
             Assert.AreEqual(type1.Kind, type2.Kind);
+            Assert.AreEqual(type1.Obsolete, type2.Obsolete);
+            Assert.AreEqual(type1.ObsoleteMessage, type2.ObsoleteMessage);
             Assert.AreNotSame(type1.Members, type2.Members);
             Assert.AreNotSame(type1.Members.Single(), type2.Members.Single());
             Assert.AreNotSame(type1.Members.Single().Changes.Single(), type2.Members.Single().Changes.Single());
@@ -273,6 +277,43 @@ namespace NChanges.Core.Tests
             Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyProperty" && m.Kind == MemberKind.Property));
             Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyEvent" && m.Kind == MemberKind.Event));
             Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyField" && m.Kind == MemberKind.Field));
+        }
+
+        [Test]
+        public void It_detects_Obsolete_attributes()
+        {
+            var typeInfo = new TypeInfo();
+
+            typeInfo.ReadType(Compiler.GetType(
+@"namespace MyNamespace
+{
+    [System.Obsolete(""This class is obsolete!"")]
+    public class MyClass
+    {
+        [System.Obsolete(""This constructor is obsolete!"")]
+        public MyClass() { }
+        [System.Obsolete(""This method is obsolete!"")]
+        public void MyMethod() { }
+        [System.Obsolete(""This property is obsolete!"")]
+        public int MyProperty { get; set; }
+        [System.Obsolete(""This event is obsolete!"")]
+        public event System.EventHandler MyEvent;
+        [System.Obsolete(""This field is obsolete!"")]
+        public int MyField;
+    }
+}"));
+            Assert.IsTrue(typeInfo.Obsolete);
+            Assert.AreEqual("This class is obsolete!", typeInfo.ObsoleteMessage);
+            Assert.IsTrue(typeInfo.Members.Single(m => m.Name == ".ctor").Obsolete);
+            Assert.AreEqual("This constructor is obsolete!", typeInfo.Members.Single(m => m.Name == ".ctor").ObsoleteMessage);
+            Assert.IsTrue(typeInfo.Members.Single(m => m.Name == "MyMethod").Obsolete);
+            Assert.AreEqual("This method is obsolete!", typeInfo.Members.Single(m => m.Name == "MyMethod").ObsoleteMessage);
+            Assert.IsTrue(typeInfo.Members.Single(m => m.Name == "MyProperty").Obsolete);
+            Assert.AreEqual("This property is obsolete!", typeInfo.Members.Single(m => m.Name == "MyProperty").ObsoleteMessage);
+            Assert.IsTrue(typeInfo.Members.Single(m => m.Name == "MyEvent").Obsolete);
+            Assert.AreEqual("This event is obsolete!", typeInfo.Members.Single(m => m.Name == "MyEvent").ObsoleteMessage);
+            Assert.IsTrue(typeInfo.Members.Single(m => m.Name == "MyField").Obsolete);
+            Assert.AreEqual("This field is obsolete!", typeInfo.Members.Single(m => m.Name == "MyField").ObsoleteMessage);
         }
     }
 }

@@ -492,5 +492,17 @@ namespace NChanges.Core.Tests
             Assert.AreEqual("2", report.Types.Single().Members.Get("MyMethod").Changes.Single().Version);
             Assert.AreEqual("myParam", report.Types.Single().Members.Get("MyMethod").Changes.Single().Old);
         }
+
+        [Test]
+        public void It_detects_when_a_type_is_marked_obsolete()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void It_detects_when_a_member_is_marked_obsolete()
+        {
+            Assert.Fail();
+        }
     }
 }

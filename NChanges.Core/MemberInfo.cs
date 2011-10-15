@@ -13,6 +13,8 @@ namespace NChanges.Core
 
         public string Name { get; set; }
         public MemberKind Kind { get; set; }
+        public bool Obsolete { get; set; }
+        public string ObsoleteMessage { get; set; }
         public IList<ParameterInfo> Parameters { get { return _parameters; } }
         public ICollection<MemberChangeInfo> Changes { get { return _changes; } }
 
@@ -42,6 +44,14 @@ namespace NChanges.Core
             {
                 Kind = MemberKind.Field;
             }
+
+            var obsoleteAttribute = (ObsoleteAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(ObsoleteAttribute));
+
+            if (obsoleteAttribute != null)
+            {
+                Obsolete = true;
+                ObsoleteMessage = obsoleteAttribute.Message;
+            }
         }
 
         private void ReadParameters(IEnumerable<System.Reflection.ParameterInfo> parameters)
@@ -63,6 +73,16 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("name", Name);
             xmlWriter.WriteAttributeString("kind", Kind.ToString());
 
+            if (Obsolete)
+            {
+                xmlWriter.WriteAttributeString("obsolete", Obsolete.ToString());
+            }
+
+            if (ObsoleteMessage != null)
+            {
+                xmlWriter.WriteAttributeString("obsoleteMessage", ObsoleteMessage);
+            }
+
             foreach (var change in Changes)
             {
                 change.WriteXml(xmlWriter);
@@ -80,6 +100,8 @@ namespace NChanges.Core
         {
             Name = xmlReader.GetAttribute("name");
             Kind = (MemberKind)Enum.Parse(typeof(MemberKind), xmlReader.GetAttribute("kind"));
+            Obsolete = string.Equals(xmlReader.GetAttribute("obsolete"), "true", StringComparison.OrdinalIgnoreCase);
+            ObsoleteMessage = xmlReader.GetAttribute("obsoleteMessage");
 
             if (xmlReader.ReadToDescendant("param"))
             {
