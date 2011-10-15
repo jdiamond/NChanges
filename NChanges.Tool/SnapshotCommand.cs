@@ -13,12 +13,14 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%.xml";
+        private string _version = null;
 
         public SnapshotCommand()
         {
             _optionSet = new OptionSet
                          {
-                             { "o|output=", "output file", v => _output = v }
+                             { "o|output=", "output file", v => _output = v },
+                             { "v|version=", "assumed version", v => _version = v }
                          };
         }
 
@@ -34,6 +36,11 @@ namespace NChanges.Tool
 
                 var assemblyInfo = new AssemblyInfo();
                 assemblyInfo.ReadAssembly(assembly);
+
+                if (_version != null)
+                {
+                    assemblyInfo.Version = _version;
+                }
 
                 var fileName = PathHelper.FormatPath(_output, assemblyInfo);
 
