@@ -496,13 +496,98 @@ namespace NChanges.Core.Tests
         [Test]
         public void It_detects_when_a_type_is_marked_obsolete()
         {
-            Assert.Fail();
+            var reporter = new Reporter
+                           {
+                               Assemblies =
+                                   {
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "1",
+                                           Types =
+                                               {
+                                                   new TypeInfo { Name = "MyType" }
+                                               }
+                                       },
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "2",
+                                           Types =
+                                               {
+                                                   new TypeInfo
+                                                   {
+                                                       Name = "MyType",
+                                                       Obsolete = true,
+                                                       ObsoleteMessage = "I'm obsolete!"
+                                                   }
+                                               }
+                                       }
+                                   }
+                           };
+
+            var report = reporter.GenerateReport();
+
+            Assert.AreEqual(TypeChangeKind.Obsoleted, report.Types.Single(t => t.Name == "MyType").Changes.Single().Kind);
+            Assert.AreEqual("2", report.Types.Single(t => t.Name == "MyType").Changes.Single().Version);
         }
 
         [Test]
         public void It_detects_when_a_member_is_marked_obsolete()
         {
-            Assert.Fail();
+            var reporter = new Reporter
+            {
+                Assemblies =
+                                   {
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "1",
+                                           Types =
+                                               {
+                                                   new TypeInfo
+                                                   {
+                                                       Name = "MyType",
+                                                       Members =
+                                                           {
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                               }
+                                                           }
+                                                   }
+                                               }
+                                       },
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "2",
+                                           Types =
+                                               {
+                                                   new TypeInfo
+                                                   {
+                                                       Name = "MyType",
+                                                       Members =
+                                                           {
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Obsolete = true,
+                                                                   ObsoleteMessage = "I'm obsolete!"
+                                                               }
+                                                           }
+                                                   }
+                                               }
+                                       }
+                                   }
+            };
+
+            var report = reporter.GenerateReport();
+
+            Assert.AreEqual(MemberChangeKind.Obsoleted, report.Types.Single().Members.Get("MyMethod").Changes.Single().Kind);
+            Assert.AreEqual("2", report.Types.Single().Members.Get("MyMethod").Changes.Single().Version);
         }
     }
 }

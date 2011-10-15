@@ -22,6 +22,7 @@ namespace NChanges.Core
 
                 FindAddedTypes(report, assembly, previousAssembly);
                 FindRemovedTypes(report, assembly, previousAssembly);
+                UpdateExistingTypes(report, assembly, previousAssembly);
                 UpdateExistingTypeMembers(report, assembly, previousAssembly);
 
                 previousAssembly = assembly;
@@ -72,6 +73,33 @@ namespace NChanges.Core
             }
         }
 
+        private static void UpdateExistingTypes(AssemblyInfo report, AssemblyInfo thisAssembly, AssemblyInfo previousAssembly)
+        {
+            if (previousAssembly != null)
+            {
+                foreach (var type in previousAssembly.Types)
+                {
+                    if (previousAssembly.Types.Contains(type.Name) &&
+                        thisAssembly.Types.Contains(type.Name))
+                    {
+                        var previousType = previousAssembly.Types.Get(type.Name);
+                        var thisType = thisAssembly.Types.Get(type.Name);
+
+                        // Did the type just become obsolete?
+                        if (!previousType.Obsolete && thisType.Obsolete)
+                        {
+                            report.Types.Get(type.Name).Changes.Add(
+                                new TypeChangeInfo
+                                {
+                                    Kind = TypeChangeKind.Obsoleted,
+                                    Version = thisAssembly.Version
+                                });
+                        }
+                    }
+                }
+            }
+        }
+
         private static void UpdateExistingTypeMembers(AssemblyInfo report, AssemblyInfo thisAssembly, AssemblyInfo previousAssembly)
         {
             if (previousAssembly != null) 
@@ -100,10 +128,21 @@ namespace NChanges.Core
                             }
                             else
                             {
+                                var oldMember = previousType.Members.Get(member.Name);
+
+                                // Did the member just become obsolete?
+                                if (!oldMember.Obsolete && member.Obsolete)
+                                {
+                                    type.Members.Get(member.Name).Changes.Add(
+                                        new MemberChangeInfo
+                                        {
+                                            Kind = MemberChangeKind.Obsoleted,
+                                            Version = thisAssembly.Version
+                                        });
+                                }
+
                                 if (!type.Members.IsOverloaded(member.Name))
                                 {
-                                    var oldMember = previousType.Members.Get(member.Name);
-
                                     if (oldMember.Parameters.Count < member.Parameters.Count)
                                     {
                                         for (var i = oldMember.Parameters.Count; i < member.Parameters.Count; i++)

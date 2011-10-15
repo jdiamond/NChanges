@@ -40,6 +40,7 @@ namespace NChanges.Core
         Added,
         Removed,
         AddedParameter,
-        RemovedParameter
+        RemovedParameter,
+        Obsoleted
     }
 }

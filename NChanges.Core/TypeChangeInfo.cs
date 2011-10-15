@@ -25,6 +25,7 @@ namespace NChanges.Core
     {
         Undefined,
         Added,
-        Removed
+        Removed,
+        Obsoleted
     }
 }
