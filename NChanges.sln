@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NChanges.Core", "NChanges.Core\NChanges.Core.csproj", "{3B8E9ED5-581A-4E1E-9484-24551AA8CFFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NChanges.Core.Tests", "NChanges.Core.Tests\NChanges.Core.Tests.csproj", "{1550FD8A-88DE-412E-8BA7-256E34F732AF}"
