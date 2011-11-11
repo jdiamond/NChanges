@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System;
+using System.Xml;
 
 namespace NChanges.Core
 {
@@ -31,6 +32,14 @@ namespace NChanges.Core
             }
 
             xmlWriter.WriteEndElement();
+        }
+
+        public void ReadXml(XmlReader xmlReader)
+        {
+            Kind = (MemberChangeKind)Enum.Parse(typeof(MemberChangeKind), xmlReader.GetAttribute("kind"));
+            Version = xmlReader.GetAttribute("version");
+            Old = xmlReader.GetAttribute("old");
+            New = xmlReader.GetAttribute("new");
         }
     }
 

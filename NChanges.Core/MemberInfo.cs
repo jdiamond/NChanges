@@ -103,15 +103,29 @@ namespace NChanges.Core
             Obsolete = string.Equals(xmlReader.GetAttribute("obsolete"), "true", StringComparison.OrdinalIgnoreCase);
             ObsoleteMessage = xmlReader.GetAttribute("obsoleteMessage");
 
-            if (xmlReader.ReadToDescendant("param"))
+
+            if (!xmlReader.IsEmptyElement)
             {
-                do
+                var childReader = xmlReader.ReadSubtree();
+
+                while (childReader.Read())
                 {
-                    var parameter = new ParameterInfo();
-                    parameter.ReadXml(xmlReader);
-                    Parameters.Add(parameter);
+                    if (childReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (childReader.Name == "change")
+                        {
+                            var memberChangeInfo = new MemberChangeInfo();
+                            memberChangeInfo.ReadXml(xmlReader);
+                            Changes.Add(memberChangeInfo);
+                        }
+                        else if (childReader.Name == "param")
+                        {
+                            var parameter = new ParameterInfo();
+                            parameter.ReadXml(xmlReader);
+                            Parameters.Add(parameter);
+                        }
+                    }
                 }
-                while (xmlReader.ReadToNextSibling("param"));
             }
         }
 

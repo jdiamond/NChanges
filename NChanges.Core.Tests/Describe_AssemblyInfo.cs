@@ -143,7 +143,9 @@ namespace MyNamespace
             XML.UseReader(assemblyInfo.ReadXml,
 @"<assembly name=""MyAssembly"" version=""1"">
   <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"" obsolete=""True"" obsoleteMessage=""I'm obsolete!"">
+    <change kind=""Added"" version=""1"" />
     <member name=""MyMethod"" kind=""Method"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
+      <change kind=""Added"" version=""1"" old=""old value"" new=""new value"" />
       <param name=""myParameter"" type=""System.Int32"" />
     </member>
   </type>
@@ -156,10 +158,16 @@ namespace MyNamespace
             Assert.AreEqual(TypeKind.Class, assemblyInfo.Types.Single().Kind);
             Assert.IsTrue(assemblyInfo.Types.Single().Obsolete);
             Assert.AreEqual("I'm obsolete!", assemblyInfo.Types.Single().ObsoleteMessage);
+            Assert.AreEqual(TypeChangeKind.Added, assemblyInfo.Types.Single().Changes.Single().Kind);
+            Assert.AreEqual("1", assemblyInfo.Types.Single().Changes.Single().Version);
             Assert.AreEqual("MyMethod", assemblyInfo.Types.Single().Members.Single().Name);
             Assert.AreEqual(MemberKind.Method, assemblyInfo.Types.Single().Members.Single().Kind);
             Assert.IsTrue(assemblyInfo.Types.Single().Members.Single().Obsolete);
             Assert.AreEqual("I'm also obsolete!", assemblyInfo.Types.Single().Members.Single().ObsoleteMessage);
+            Assert.AreEqual(MemberChangeKind.Added, assemblyInfo.Types.Single().Members.Single().Changes.Single().Kind);
+            Assert.AreEqual("1", assemblyInfo.Types.Single().Members.Single().Changes.Single().Version);
+            Assert.AreEqual("old value", assemblyInfo.Types.Single().Members.Single().Changes.Single().Old);
+            Assert.AreEqual("new value", assemblyInfo.Types.Single().Members.Single().Changes.Single().New);
             Assert.AreEqual("myParameter", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Name);
             Assert.AreEqual("System.Int32", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Type);
         }

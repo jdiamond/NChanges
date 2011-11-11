@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System;
+using System.Xml;
 
 namespace NChanges.Core
 {
@@ -18,6 +19,12 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("kind", Kind.ToString());
             xmlWriter.WriteAttributeString("version", Version);
             xmlWriter.WriteEndElement();
+        }
+
+        public void ReadXml(XmlReader xmlReader)
+        {
+            Kind = (TypeChangeKind)Enum.Parse(typeof(TypeChangeKind), xmlReader.GetAttribute("kind"));
+            Version = xmlReader.GetAttribute("version");
         }
     }
 

@@ -155,15 +155,28 @@ namespace NChanges.Core
             Obsolete = string.Equals(xmlReader.GetAttribute("obsolete"), "true", StringComparison.OrdinalIgnoreCase);
             ObsoleteMessage = xmlReader.GetAttribute("obsoleteMessage");
 
-            if (xmlReader.ReadToDescendant("member"))
+            if (!xmlReader.IsEmptyElement)
             {
-                do
+                var childReader = xmlReader.ReadSubtree();
+
+                while (childReader.Read())
                 {
-                    var member = new MemberInfo();
-                    member.ReadXml(xmlReader);
-                    Members.Add(member);
+                    if (childReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (childReader.Name == "change")
+                        {
+                            var typeChangeInfo = new TypeChangeInfo();
+                            typeChangeInfo.ReadXml(xmlReader);
+                            Changes.Add(typeChangeInfo);
+                        }
+                        else if (childReader.Name == "member")
+                        {
+                            var member = new MemberInfo();
+                            member.ReadXml(xmlReader);
+                            Members.Add(member);
+                        }
+                    }
                 }
-                while (xmlReader.ReadToNextSibling("member"));
             }
         }
 
