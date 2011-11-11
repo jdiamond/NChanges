@@ -114,6 +114,7 @@ namespace NChanges.Core
 
                         foreach (var member in thisType.Members)
                         {
+                            // Is this a new member?
                             if (!previousType.Members.Contains(member.Name))
                             {
                                 var newMember = member.Clone();
@@ -128,6 +129,7 @@ namespace NChanges.Core
                             }
                             else
                             {
+                                // The member is old. Check to see if it was modified.
                                 var oldMember = previousType.Members.Get(member.Name);
 
                                 // Did the member just become obsolete?
@@ -155,6 +157,8 @@ namespace NChanges.Core
                                                                        Version = thisAssembly.Version,
                                                                        New = member.Parameters[i].Name
                                                                    });
+
+                                            typeMember.UpdateParameters(member);
                                         }
                                     }
                                     else if (oldMember.Parameters.Count > member.Parameters.Count)
@@ -169,12 +173,15 @@ namespace NChanges.Core
                                                                        Version = thisAssembly.Version,
                                                                        Old = oldMember.Parameters[i].Name
                                                                    });
+
+                                            typeMember.UpdateParameters(member);
                                         }
                                     }
                                 }
                             }
                         }
 
+                        // Look for removed members.
                         foreach (var member in previousType.Members)
                         {
                             if (!thisType.Members.Contains(member.Name))

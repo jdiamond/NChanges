@@ -136,6 +136,11 @@ namespace NChanges.Core
             newMember._changes = new List<MemberChangeInfo>(Changes.Select(c => c.Clone()));
             return newMember;
         }
+
+        public void UpdateParameters(MemberInfo memberInfo)
+        {
+            _parameters = new List<ParameterInfo>(memberInfo.Parameters.Select(p => p.Clone()));
+        }
     }
 
     public enum MemberKind

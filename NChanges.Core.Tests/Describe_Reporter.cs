@@ -426,6 +426,7 @@ namespace NChanges.Core.Tests
             Assert.AreEqual(MemberChangeKind.AddedParameter, report.Types.Single().Members.Get("MyMethod").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single().Members.Get("MyMethod").Changes.Single().Version);
             Assert.AreEqual("myParam", report.Types.Single().Members.Get("MyMethod").Changes.Single().New);
+            Assert.AreEqual("myParam", report.Types.Single().Members.Get("MyMethod").Parameters.Single().Name);
         }
 
         [Test]
