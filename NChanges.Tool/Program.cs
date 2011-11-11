@@ -26,6 +26,10 @@ namespace NChanges.Tool
             {
                 new ReportCommand().Run(args);
             }
+            else if (command == "export")
+            {
+                new ExcelCommand().Run(args);
+            }
             else
             {
                 Console.Error.WriteLine("Unknown command: {0}", command);
@@ -48,7 +52,12 @@ namespace NChanges.Tool
             Console.Error.WriteLine("Report will take the differences of the snapshots and put them into a xml file called: " +
                                     "[assembly name]-[highest version number]-report.xml");
             Console.Error.WriteLine();
-            Console.Error.WriteLine("Command can be \"snapshot\" or \"report\".");
+            Console.Error.WriteLine("Usage 3: {0} export [report filename]", exeName);
+            Console.Error.WriteLine("Export will export the report to an excel file.");
+            Console.Error.WriteLine("The exported file name is called: " +
+                                    "[report name].xls");
+            Console.Error.WriteLine();
+            Console.Error.WriteLine("Command can be \"snapshot\" or \"report\" or \"export\".");
             Console.Error.WriteLine();
             Console.Error.WriteLine("Options for the \"snapshot\" command:");
             Console.Error.WriteLine();
