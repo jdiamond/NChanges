@@ -46,10 +46,10 @@ namespace NChanges.Core
     public enum MemberChangeKind
     {
         Undefined,
-        Added,
-        Removed,
+        AddedMember,
+        RemovedMember,
         AddedParameter,
         RemovedParameter,
-        Obsoleted
+        ObsoletedMember
     }
 }

@@ -74,7 +74,7 @@ namespace NChanges.Tool
             worksheet.Cells.ColumnWidth[METHOD_NAME] = 12000;
             worksheet.Cells.ColumnWidth[PARAMETERS] = 10000;
             worksheet.Cells.ColumnWidth[RETURN_TYPE] = 5000;
-            worksheet.Cells.ColumnWidth[CHANGE] = 3000;
+            worksheet.Cells.ColumnWidth[CHANGE] = 5000;
             worksheet.Cells.ColumnWidth[VERSION] = 3000;
         }
 
