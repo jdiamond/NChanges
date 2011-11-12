@@ -12,7 +12,12 @@ namespace NChanges.Core
 
         public static MemberInfo Get(this ICollection<MemberInfo> source, MemberInfo memberInfo)
         {
-            return source.Single(m => m.Name == memberInfo.Name && MatchParameter(m, memberInfo));
+            if (source.IsOverloaded(memberInfo.Name))
+            {
+                return source.Single(m => m.Name == memberInfo.Name && MatchParameter(m, memberInfo));
+            }
+
+            return source.Get(memberInfo.Name);
         }
 
         private static bool MatchParameter(MemberInfo current, MemberInfo previous)
