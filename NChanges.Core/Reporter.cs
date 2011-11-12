@@ -46,7 +46,7 @@ namespace NChanges.Core
                 {
                     newType.Changes.Add(new TypeChangeInfo
                                         {
-                                            Kind = TypeChangeKind.Added,
+                                            Kind = TypeChangeKind.AddedType,
                                             Version = thisAssembly.Version
                                         });
                 }
@@ -65,7 +65,7 @@ namespace NChanges.Core
                     {
                         report.Types.Get(type.Name).Changes.Add(new TypeChangeInfo
                                                                 {
-                                                                    Kind = TypeChangeKind.Removed,
+                                                                    Kind = TypeChangeKind.RemovedType,
                                                                     Version = thisAssembly.Version
                                                                 });
                     }
@@ -91,7 +91,7 @@ namespace NChanges.Core
                             report.Types.Get(type.Name).Changes.Add(
                                 new TypeChangeInfo
                                 {
-                                    Kind = TypeChangeKind.Obsoleted,
+                                    Kind = TypeChangeKind.ObsoletedType,
                                     Version = thisAssembly.Version
                                 });
                         }
@@ -121,7 +121,7 @@ namespace NChanges.Core
 
                                 newMember.Changes.Add(new MemberChangeInfo
                                                       {
-                                                          Kind = MemberChangeKind.Added,
+                                                          Kind = MemberChangeKind.AddedMember,
                                                           Version = thisAssembly.Version
                                                       });
 
@@ -130,7 +130,7 @@ namespace NChanges.Core
                             else
                             {
                                 // The member is old. Check to see if it was modified.
-                                var oldMember = previousType.Members.Get(member.Name);
+                                var oldMember = previousType.Members.Get(member);
 
                                 // Did the member just become obsolete?
                                 if (!oldMember.Obsolete && member.Obsolete)
@@ -138,7 +138,7 @@ namespace NChanges.Core
                                     type.Members.Get(member.Name).Changes.Add(
                                         new MemberChangeInfo
                                         {
-                                            Kind = MemberChangeKind.Obsoleted,
+                                            Kind = MemberChangeKind.ObsoletedMember,
                                             Version = thisAssembly.Version
                                         });
                                 }
@@ -186,11 +186,11 @@ namespace NChanges.Core
                         {
                             if (!thisType.Members.Contains(member.Name))
                             {
-                                var removedMember = type.Members.Get(member.Name);
+                                var removedMember = type.Members.Get(member);
 
                                 removedMember.Changes.Add(new MemberChangeInfo
                                                           {
-                                                              Kind = MemberChangeKind.Removed,
+                                                              Kind = MemberChangeKind.RemovedMember,
                                                               Version = thisAssembly.Version
                                                           });
                             }

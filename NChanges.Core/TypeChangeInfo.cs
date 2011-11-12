@@ -31,8 +31,8 @@ namespace NChanges.Core
     public enum TypeChangeKind
     {
         Undefined,
-        Added,
-        Removed,
-        Obsoleted
+        AddedType,
+        RemovedType,
+        ObsoletedType
     }
 }
