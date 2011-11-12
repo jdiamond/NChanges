@@ -10,13 +10,13 @@ namespace NChanges.Tool
 {
     public class ExcelCommand
     {
-        private const int NAMESPACE = 0;
-        private const int CLASS_NAME = 1;
-        private const int METHOD_NAME = 2;
-        private const int PARAMETERS = 3;
-        private const int RETURN_TYPE = 4;
-        private const int CHANGE = 5;
-        private const int VERSION = 6;
+        private const int VERSION = 0;
+        private const int CHANGE = 1;
+        private const int NAMESPACE = 2;
+        private const int TYPE_NAME = 3;
+        private const int METHOD_NAME = 4;
+        private const int PARAMETERS = 5;
+        private const int RETURN_TYPE = 6;
 
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
@@ -58,8 +58,7 @@ namespace NChanges.Tool
 
         private static void AddHeaders(Worksheet worksheet)
         {
-            worksheet.Cells[0, NAMESPACE] = new Cell("Namespace");
-            worksheet.Cells[0, CLASS_NAME] = new Cell("Class");
+            worksheet.Cells[0, TYPE_NAME] = new Cell("Type");
             worksheet.Cells[0, METHOD_NAME] = new Cell("Method");
             worksheet.Cells[0, PARAMETERS] = new Cell("Parameters");
             worksheet.Cells[0, RETURN_TYPE] = new Cell("Return Type");
@@ -69,13 +68,13 @@ namespace NChanges.Tool
 
         private static void SetColumnSize(Worksheet worksheet)
         {
-            worksheet.Cells.ColumnWidth[0, NAMESPACE] = 10000;
-            worksheet.Cells.ColumnWidth[0, CLASS_NAME] = 5000;
-            worksheet.Cells.ColumnWidth[0, METHOD_NAME] = 5000;
-            worksheet.Cells.ColumnWidth[0, PARAMETERS] = 10000;
-            worksheet.Cells.ColumnWidth[0, RETURN_TYPE] = 5000;
-            worksheet.Cells.ColumnWidth[0, CHANGE] = 5000;
-            worksheet.Cells.ColumnWidth[0, VERSION] = 5000;
+            worksheet.Cells.ColumnWidth[NAMESPACE] = 15000;
+            worksheet.Cells.ColumnWidth[TYPE_NAME] = 12000;
+            worksheet.Cells.ColumnWidth[METHOD_NAME] = 12000;
+            worksheet.Cells.ColumnWidth[PARAMETERS] = 10000;
+            worksheet.Cells.ColumnWidth[RETURN_TYPE] = 5000;
+            worksheet.Cells.ColumnWidth[CHANGE] = 3000;
+            worksheet.Cells.ColumnWidth[VERSION] = 3000;
         }
 
         private void AddData(AssemblyInfo report, Worksheet worksheet)
@@ -97,7 +96,7 @@ namespace NChanges.Tool
                         
                         worksheet.Cells[rowIndex, METHOD_NAME] = new Cell(methodName);
                         worksheet.Cells[rowIndex, NAMESPACE] = new Cell(namesp);
-                        worksheet.Cells[rowIndex, CLASS_NAME] = new Cell(typeName);
+                        worksheet.Cells[rowIndex, TYPE_NAME] = new Cell(typeInfo.Kind.ToString().ToLower() + " " + typeName);
                         worksheet.Cells[rowIndex, VERSION] = new Cell(version);
                         worksheet.Cells[rowIndex, CHANGE] = new Cell(kind.ToString());
                         worksheet.Cells[rowIndex, PARAMETERS] = new Cell(parameters);
