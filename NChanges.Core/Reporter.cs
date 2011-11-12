@@ -130,7 +130,7 @@ namespace NChanges.Core
                             else
                             {
                                 // The member is old. Check to see if it was modified.
-                                var oldMember = previousType.Members.Get(member.Name);
+                                var oldMember = previousType.Members.Get(member);
 
                                 // Did the member just become obsolete?
                                 if (!oldMember.Obsolete && member.Obsolete)
@@ -186,7 +186,7 @@ namespace NChanges.Core
                         {
                             if (!thisType.Members.Contains(member.Name))
                             {
-                                var removedMember = type.Members.Get(member.Name);
+                                var removedMember = type.Members.Get(member);
 
                                 removedMember.Changes.Add(new MemberChangeInfo
                                                           {
