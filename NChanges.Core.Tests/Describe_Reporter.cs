@@ -116,7 +116,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(TypeChangeKind.Added, report.Types.Single(t => t.Name == "MyType2").Changes.Single().Kind);
+            Assert.AreEqual(TypeChangeKind.AddedType, report.Types.Single(t => t.Name == "MyType2").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single(t => t.Name == "MyType2").Changes.Single().Version);
         }
 
@@ -149,7 +149,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(TypeChangeKind.Removed, report.Types.Single(t => t.Name == "MyType").Changes.Last().Kind);
+            Assert.AreEqual(TypeChangeKind.RemovedType, report.Types.Single(t => t.Name == "MyType").Changes.Last().Kind);
             Assert.AreEqual("2", report.Types.Single(t => t.Name == "MyType").Changes.Last().Version);
         }
 
@@ -298,7 +298,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(MemberChangeKind.Added, report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Kind);
+            Assert.AreEqual(MemberChangeKind.AddedMember, report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Version);
         }
 
@@ -359,7 +359,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(MemberChangeKind.Removed, report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Kind);
+            Assert.AreEqual(MemberChangeKind.RemovedMember, report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single().Members.Single(m => m.Name == "MyMethod2").Changes.Single().Version);
         }
 
@@ -529,7 +529,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(TypeChangeKind.Obsoleted, report.Types.Single(t => t.Name == "MyType").Changes.Single().Kind);
+            Assert.AreEqual(TypeChangeKind.ObsoletedType, report.Types.Single(t => t.Name == "MyType").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single(t => t.Name == "MyType").Changes.Single().Version);
         }
 
@@ -587,7 +587,7 @@ namespace NChanges.Core.Tests
 
             var report = reporter.GenerateReport();
 
-            Assert.AreEqual(MemberChangeKind.Obsoleted, report.Types.Single().Members.Get("MyMethod").Changes.Single().Kind);
+            Assert.AreEqual(MemberChangeKind.ObsoletedMember, report.Types.Single().Members.Get("MyMethod").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single().Members.Get("MyMethod").Changes.Single().Version);
         }
     }
