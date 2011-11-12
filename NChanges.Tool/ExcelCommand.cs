@@ -58,6 +58,7 @@ namespace NChanges.Tool
 
         private static void AddHeaders(Worksheet worksheet)
         {
+            worksheet.Cells[0, NAMESPACE] = new Cell("Namespace");
             worksheet.Cells[0, TYPE_NAME] = new Cell("Type");
             worksheet.Cells[0, METHOD_NAME] = new Cell("Method");
             worksheet.Cells[0, PARAMETERS] = new Cell("Parameters");
