@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace NChanges.Core
@@ -17,6 +18,10 @@ namespace NChanges.Core
         public string ObsoleteMessage { get; set; }
         public IList<ParameterInfo> Parameters { get { return _parameters; } }
         public ICollection<MemberChangeInfo> Changes { get { return _changes; } }
+
+        private static readonly Regex ParameterTypeRegex = new Regex(
+            @",\s*Version=\d+\.\d+\.\d+\.\d+,\s*Culture=[^,]+,\s*PublicKeyToken=[^\]]+",
+            RegexOptions.IgnoreCase);
 
         public void ReadMember(System.Reflection.MemberInfo memberInfo)
         {
@@ -61,9 +66,16 @@ namespace NChanges.Core
                 Parameters.Add(new ParameterInfo
                                {
                                    Name = pi.Name,
-                                   Type = pi.ParameterType.FullName
+                                   Type = CleanUpParameterType(pi.ParameterType.FullName)
                                });
             }
+        }
+
+        private static string CleanUpParameterType(string type)
+        {
+            // Remove the version and other junk so that the parameters can be compared across versions.
+            // This only seems to be a problem with generic types (the inner types have the versions).
+            return ParameterTypeRegex.Replace(type, "");
         }
 
         public void WriteXml(XmlWriter xmlWriter)

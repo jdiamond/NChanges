@@ -171,5 +171,26 @@ namespace MyNamespace
             Assert.AreEqual("myParameter", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Name);
             Assert.AreEqual("System.Int32", assemblyInfo.Types.Single().Members.Single().Parameters.Single().Type);
         }
+
+        [Test]
+        public void It_strips_the_version_culture_and_public_key_token_from_parameter_types()
+        {
+            var assemblyInfo = new AssemblyInfo();
+
+            assemblyInfo.ReadAssembly(Compiler.GetAssembly(
+@"[assembly: System.Reflection.AssemblyVersion(""1.2.3.4"")]
+
+namespace MyNamespace
+{
+    public class MyClass
+    {
+        public void MyMethod(System.Collections.Generic.IEnumerable<MyClass> obj) { }
+    }
+}"));
+
+            Assert.AreEqual(
+                "System.Collections.Generic.IEnumerable`1[[MyNamespace.MyClass, MyAssembly]]",
+                assemblyInfo.Types.Single().Members.Get("MyMethod").Parameters.Single().Type);
+        }
     }
 }
