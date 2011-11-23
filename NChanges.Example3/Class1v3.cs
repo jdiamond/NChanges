@@ -8,4 +8,8 @@
         public void Method4(int param1) { }
         public void Method5() { } // added
     }
+
+    public class Class2
+    {
+    }
 }

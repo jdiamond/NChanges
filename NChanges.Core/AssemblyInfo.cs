@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace NChanges.Core
@@ -12,20 +14,32 @@ namespace NChanges.Core
         public string Version { get; set; }
         public ICollection<TypeInfo> Types { get { return _types; } }
 
-        public void ReadAssembly(Assembly assembly)
+        public void ReadAssembly(Assembly assembly, string excludePattern = null)
         {
             Name = assembly.GetName().Name;
             Version = assembly.GetName().Version.ToString();
 
+            Regex excludeRegex = null;
+
+            if (!string.IsNullOrEmpty(excludePattern))
+            {
+                excludeRegex = new Regex(excludePattern);
+            }
+
             foreach (var type in assembly.GetTypes())
             {
-                if (type.IsPublic)
+                if (type.IsPublic && TypeIsNotExcluded(type, excludeRegex))
                 {
                     var typeInfo = new TypeInfo();
                     typeInfo.ReadType(type);
                     _types.Add(typeInfo);
                 }
             }
+        }
+
+        private bool TypeIsNotExcluded(Type type, Regex excludeRegex)
+        {
+            return excludeRegex == null || !excludeRegex.IsMatch(type.FullName);
         }
 
         public void WriteXml(XmlWriter xmlWriter)

@@ -192,5 +192,21 @@ namespace MyNamespace
                 "System.Collections.Generic.IEnumerable`1[[MyNamespace.MyClass, MyAssembly]]",
                 assemblyInfo.Types.Single().Members.Get("MyMethod").Parameters.Single().Type);
         }
+
+        [Test]
+        public void It_can_exclude_specified_types()
+        {
+            var assemblyInfo = new AssemblyInfo();
+
+            assemblyInfo.ReadAssembly(Compiler.GetAssembly(
+@"namespace MyNamespace
+{
+    public class MyClass1 { }
+
+    public class MyClass2 { }
+}"), "Class2");
+
+            Assert.AreEqual("MyClass1", assemblyInfo.Types.Single().Name);
+        }
     }
 }

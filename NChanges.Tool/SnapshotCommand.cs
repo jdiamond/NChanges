@@ -13,14 +13,16 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%.xml";
-        private string _version = null;
+        private string _version;
+        private string _excludePattern;
 
         public SnapshotCommand()
         {
             _optionSet = new OptionSet
                          {
                              { "o|output=", "output file", v => _output = v },
-                             { "v|version=", "assumed version", v => _version = v }
+                             { "v|version=", "assume this version instead of assembly version", v => _version = v },
+                             { "x|exclude=", "regex pattern to exclude types", v => _excludePattern = v }
                          };
         }
 
@@ -35,7 +37,7 @@ namespace NChanges.Tool
                 var assembly = Assembly.LoadFrom(absolutePath);
 
                 var assemblyInfo = new AssemblyInfo();
-                assemblyInfo.ReadAssembly(assembly);
+                assemblyInfo.ReadAssembly(assembly, _excludePattern);
 
                 if (_version != null)
                 {
