@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="TypeHelpers.cs" />
     <Compile Include="MemberInfoCollectionExtensions.cs" />
     <Compile Include="MemberChangeInfo.cs" />
     <Compile Include="ParameterInfo.cs" />
