@@ -14,20 +14,9 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
+        private string _columns = "version,change,namespace,type,member,params,return";
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
-
-        // TODO: Make it so these can be configured via a command-line option.
-        private readonly List<string> _columns = new List<string>
-                                                 {
-                                                     "version",
-                                                     "change",
-                                                     "namespace",
-                                                     "type",
-                                                     "member",
-                                                     "params",
-                                                     "return"
-                                                 }; 
 
         static ExcelCommand()
         {
@@ -92,7 +81,8 @@ namespace NChanges.Tool
         {
             _optionSet = new OptionSet
                          {
-                             { "o|output=", "output file", v => _output = v }
+                             { "o|output=", "output file", v => _output = v },
+                             { "c|columns=", "columns", v => _columns = v }
                          };
         }
 
@@ -164,15 +154,20 @@ namespace NChanges.Tool
 
         private void ForEachColumn(Action<int, FieldInfo> worker)
         {
-            for (var i = 0; i < _columns.Count; i++)
+            int i = 0;
+
+            foreach (var col in _columns.Split(','))
             {
-                worker(i, _columnMap[_columns[i]]);
+                worker(i++, _columnMap[col.Trim()]);
             }
         }
 
         public void ShowHelp()
         {
             _optionSet.WriteOptionDescriptions(Console.Error);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine("Avaliable Columns: " + string.Join(",", _columnMap.Keys.OrderBy(c => c).ToArray()));
+            Console.Error.WriteLine("Default Columns: " + _columns);
         }
     }
 }
