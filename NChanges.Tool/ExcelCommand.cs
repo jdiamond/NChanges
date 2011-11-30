@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
-using ExcelLibrary.SpreadSheet;
 using Mono.Options;
 using NChanges.Core;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 
 namespace NChanges.Tool
 {
@@ -33,7 +35,7 @@ namespace NChanges.Tool
         {
             var extras = _optionSet.Parse(args);
 
-            var workbook = new Workbook();
+            var workbook = new HSSFWorkbook();
             string fileName = null;
 
             foreach (var path in PathHelper.ExpandPaths(extras))
@@ -45,16 +47,14 @@ namespace NChanges.Tool
                     fileName = PathHelper.FormatPath(_output, report);
                 }
 
-                var worksheet = new Worksheet(report.Name);
-                workbook.Worksheets.Add(worksheet);
+                var worksheet = workbook.CreateSheet(report.Name);
 
-                AddEmptyCellsToFixKnownExcelBug(worksheet);
                 AddHeaders(worksheet);
                 SetColumnSize(worksheet);
                 AddData(report, worksheet);
             }
 
-            workbook.Save(fileName);
+            workbook.Write(new FileStream(fileName, FileMode.Create));
         }
 
         private AssemblyInfo LoadReport(string path)
@@ -65,37 +65,31 @@ namespace NChanges.Tool
             return report;
         }
 
-        private void AddEmptyCellsToFixKnownExcelBug(Worksheet worksheet)
+        private static void AddHeaders(ISheet worksheet)
         {
-            for (var i = 0; i < 200; i++)
-            {
-                worksheet.Cells[i, 0] = new Cell(null);
-            }
+            var row = worksheet.CreateRow(0);
+
+            row.CreateCell(NAMESPACE).SetCellValue("Namespace");
+            row.CreateCell(TYPE_NAME).SetCellValue("Type");
+            row.CreateCell(METHOD_NAME).SetCellValue("Method");
+            row.CreateCell(PARAMETERS).SetCellValue("Parameters");
+            row.CreateCell(RETURN_TYPE).SetCellValue("Return Type");
+            row.CreateCell(CHANGE).SetCellValue("Change");
+            row.CreateCell(VERSION).SetCellValue("Version");
         }
 
-        private static void AddHeaders(Worksheet worksheet)
+        private static void SetColumnSize(ISheet worksheet)
         {
-            worksheet.Cells[0, NAMESPACE] = new Cell("Namespace");
-            worksheet.Cells[0, TYPE_NAME] = new Cell("Type");
-            worksheet.Cells[0, METHOD_NAME] = new Cell("Method");
-            worksheet.Cells[0, PARAMETERS] = new Cell("Parameters");
-            worksheet.Cells[0, RETURN_TYPE] = new Cell("Return Type");
-            worksheet.Cells[0, CHANGE] = new Cell("Change");
-            worksheet.Cells[0, VERSION] = new Cell("Version");
+            worksheet.SetColumnWidth(NAMESPACE, 15000);
+            worksheet.SetColumnWidth(TYPE_NAME, 12000);
+            worksheet.SetColumnWidth(METHOD_NAME, 12000);
+            worksheet.SetColumnWidth(PARAMETERS, 10000);
+            worksheet.SetColumnWidth(RETURN_TYPE, 5000);
+            worksheet.SetColumnWidth(CHANGE, 5000);
+            worksheet.SetColumnWidth(VERSION, 3000);
         }
 
-        private static void SetColumnSize(Worksheet worksheet)
-        {
-            worksheet.Cells.ColumnWidth[NAMESPACE] = 15000;
-            worksheet.Cells.ColumnWidth[TYPE_NAME] = 12000;
-            worksheet.Cells.ColumnWidth[METHOD_NAME] = 12000;
-            worksheet.Cells.ColumnWidth[PARAMETERS] = 10000;
-            worksheet.Cells.ColumnWidth[RETURN_TYPE] = 5000;
-            worksheet.Cells.ColumnWidth[CHANGE] = 5000;
-            worksheet.Cells.ColumnWidth[VERSION] = 3000;
-        }
-
-        private void AddData(AssemblyInfo report, Worksheet worksheet)
+        private void AddData(AssemblyInfo report, ISheet worksheet)
         {
             var rowIndex = 2;
 
@@ -111,13 +105,15 @@ namespace NChanges.Tool
                         var kind = change.Kind;
                         var version = change.Version;
                         var parameters = string.Join(", ", methodInfo.Parameters.Select(mi => GetKeywordForTypeName(mi.Type) + " " + mi.Name).ToArray());
+
+                        var row = worksheet.CreateRow(rowIndex);
                         
-                        worksheet.Cells[rowIndex, METHOD_NAME] = new Cell(methodName);
-                        worksheet.Cells[rowIndex, NAMESPACE] = new Cell(namesp);
-                        worksheet.Cells[rowIndex, TYPE_NAME] = new Cell(typeInfo.Kind.ToString().ToLower() + " " + typeName);
-                        worksheet.Cells[rowIndex, VERSION] = new Cell(version);
-                        worksheet.Cells[rowIndex, CHANGE] = new Cell(kind.ToString());
-                        worksheet.Cells[rowIndex, PARAMETERS] = new Cell(parameters);
+                        row.CreateCell(METHOD_NAME).SetCellValue(methodName);
+                        row.CreateCell(NAMESPACE).SetCellValue(namesp);
+                        row.CreateCell(TYPE_NAME).SetCellValue(typeInfo.Kind.ToString().ToLower() + " " + typeName);
+                        row.CreateCell(VERSION).SetCellValue(version);
+                        row.CreateCell(CHANGE).SetCellValue(kind.ToString());
+                        row.CreateCell(PARAMETERS).SetCellValue(parameters);
 
                         rowIndex++;
                     }
