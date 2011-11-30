@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using System.Xml;
 
 namespace NChanges.Core
 {
+    [DebuggerDisplay("{Name}")]
     public class MemberInfo
     {
         private List<ParameterInfo> _parameters = new List<ParameterInfo>();

@@ -104,13 +104,13 @@ namespace NChanges.Core
         {
             if (previousAssembly != null) 
             {
-                foreach (var type in report.Types)
+                foreach (var reportType in report.Types)
                 {
-                    if (previousAssembly.Types.Contains(type.Name) &&
-                        thisAssembly.Types.Contains(type.Name))
+                    if (previousAssembly.Types.Contains(reportType.Name) &&
+                        thisAssembly.Types.Contains(reportType.Name))
                     {
-                        var previousType = previousAssembly.Types.Get(type.Name);
-                        var thisType = thisAssembly.Types.Get(type.Name);
+                        var previousType = previousAssembly.Types.Get(reportType.Name);
+                        var thisType = thisAssembly.Types.Get(reportType.Name);
 
                         foreach (var member in thisType.Members)
                         {
@@ -125,7 +125,7 @@ namespace NChanges.Core
                                                           Version = thisAssembly.Version
                                                       });
 
-                                type.Members.Add(newMember);
+                                reportType.Members.Add(newMember);
                             }
                             else
                             {
@@ -135,7 +135,7 @@ namespace NChanges.Core
                                 // Did the member just become obsolete?
                                 if (!oldMember.Obsolete && member.Obsolete)
                                 {
-                                    type.Members.Get(member.Name).Changes.Add(
+                                    reportType.Members.Get(member.Name).Changes.Add(
                                         new MemberChangeInfo
                                         {
                                             Kind = MemberChangeKind.ObsoletedMember,
@@ -143,13 +143,13 @@ namespace NChanges.Core
                                         });
                                 }
 
-                                if (!type.Members.IsOverloaded(member.Name))
+                                if (!reportType.Members.IsOverloaded(member.Name))
                                 {
                                     if (oldMember.Parameters.Count < member.Parameters.Count)
                                     {
                                         for (var i = oldMember.Parameters.Count; i < member.Parameters.Count; i++)
                                         {
-                                            var typeMember = type.Members.Get(member.Name);
+                                            var typeMember = reportType.Members.Get(member.Name);
 
                                             typeMember.Changes.Add(new MemberChangeInfo
                                                                    {
@@ -165,7 +165,7 @@ namespace NChanges.Core
                                     {
                                         for (var i = member.Parameters.Count; i < oldMember.Parameters.Count; i++)
                                         {
-                                            var typeMember = type.Members.Get(member.Name);
+                                            var typeMember = reportType.Members.Get(member.Name);
 
                                             typeMember.Changes.Add(new MemberChangeInfo
                                                                    {
@@ -186,7 +186,7 @@ namespace NChanges.Core
                         {
                             if (!thisType.Members.Contains(member.Name))
                             {
-                                var removedMember = type.Members.Get(member);
+                                var removedMember = reportType.Members.Get(member);
 
                                 removedMember.Changes.Add(new MemberChangeInfo
                                                           {

@@ -23,37 +23,54 @@ namespace NChanges.Tool
 
         public ExcelCommand()
         {
-            _optionSet = new OptionSet();
+            _optionSet = new OptionSet
+                         {
+                             { "o|output=", "output file", v => _output = v }
+                         };
         }
 
         public void Run(IEnumerable<string> args)
         {
-            AssemblyInfo report = LoadReport(args);
+            var extras = _optionSet.Parse(args);
 
-            var fileName = PathHelper.FormatPath(_output, report);
-            var worksheet = new Worksheet("API Changes");
+            var workbook = new Workbook();
+            string fileName = null;
 
-            AddEmptyCellsToFixKnownExcelBug(worksheet);
-            AddHeaders(worksheet);
-            SetColumnSize(worksheet);
-            AddData(report, worksheet);
-            CreateFile(worksheet, fileName);
+            foreach (var path in PathHelper.ExpandPaths(extras))
+            {
+                var report = LoadReport(path);
+
+                if (fileName == null)
+                {
+                    fileName = PathHelper.FormatPath(_output, report);
+                }
+
+                var worksheet = new Worksheet(report.Name);
+                workbook.Worksheets.Add(worksheet);
+
+                AddEmptyCellsToFixKnownExcelBug(worksheet);
+                AddHeaders(worksheet);
+                SetColumnSize(worksheet);
+                AddData(report, worksheet);
+            }
+
+            workbook.Save(fileName);
+        }
+
+        private AssemblyInfo LoadReport(string path)
+        {
+            var report = new AssemblyInfo();
+            report.ReadXml(new XmlTextReader(path));
+
+            return report;
         }
 
         private void AddEmptyCellsToFixKnownExcelBug(Worksheet worksheet)
         {
-            for (var k = 0; k < 200; k++)
-                worksheet.Cells[k, 0] = new Cell(null);
-        }
-
-        private AssemblyInfo LoadReport(IEnumerable<string> args)
-        {
-            var extras = _optionSet.Parse(args);
-            var report = new AssemblyInfo();
-
-            report.ReadXml(new XmlTextReader(extras[0]));
-
-            return report;
+            for (var i = 0; i < 200; i++)
+            {
+                worksheet.Cells[i, 0] = new Cell(null);
+            }
         }
 
         private static void AddHeaders(Worksheet worksheet)
@@ -144,16 +161,6 @@ namespace NChanges.Tool
                 default:
                     return typeName;
             }
-        }
-
-        private static void CreateFile(Worksheet worksheet, string fileName)
-        {
-            var workbook = new Workbook
-                           {
-                               Worksheets = { worksheet }
-                           };
-
-            workbook.Save(fileName);
         }
 
         public void ShowHelp()

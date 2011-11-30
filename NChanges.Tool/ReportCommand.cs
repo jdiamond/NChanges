@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
@@ -31,7 +32,7 @@ namespace NChanges.Tool
         {
             var extras = _optionSet.Parse(args);
 
-            var reporter = new Reporter();
+            var assemblies = new List<AssemblyInfo>();
 
             foreach (string arg in PathHelper.ExpandPaths(extras))
             {
@@ -42,34 +43,44 @@ namespace NChanges.Tool
                     assemblyInfo.ReadXml(xmlReader);
                 }
 
-                reporter.Assemblies.Add(assemblyInfo);
+                assemblies.Add(assemblyInfo);
             }
 
-            var report = reporter.GenerateReport();
-
-            var fileName = PathHelper.FormatPath(_output, report);
-
-            using (var xmlWriter = new XmlTextWriter(fileName, Encoding.UTF8)
-                                   {
-                                       Formatting = Formatting.Indented
-                                   })
+            foreach (var group in assemblies.GroupBy(a => a.Name))
             {
-                report.WriteXml(xmlWriter);
-            }
+                var reporter = new Reporter();
 
-            if (!string.IsNullOrEmpty(_transform))
-            {
-                var transform = new XslCompiledTransform();
-                transform.Load(_transform);
-
-                var document = new XPathDocument(fileName);
-
-                var transformOutput = PathHelper.FormatPath(_transformOutput, report);
-
-                using (var stream = new FileStream(transformOutput, FileMode.Create))
+                foreach (var assembly in group)
                 {
-                    transform.Transform(document, null, stream);
-                    stream.Flush();
+                    reporter.Assemblies.Add(assembly);               
+                }
+
+                var report = reporter.GenerateReport();
+
+                var fileName = PathHelper.FormatPath(_output, report);
+
+                using (var xmlWriter = new XmlTextWriter(fileName, Encoding.UTF8)
+                                       {
+                                           Formatting = Formatting.Indented
+                                       })
+                {
+                    report.WriteXml(xmlWriter);
+                }
+
+                if (!string.IsNullOrEmpty(_transform))
+                {
+                    var transform = new XslCompiledTransform();
+                    transform.Load(_transform);
+
+                    var document = new XPathDocument(fileName);
+
+                    var transformOutput = PathHelper.FormatPath(_transformOutput, report);
+
+                    using (var stream = new FileStream(transformOutput, FileMode.Create))
+                    {
+                        transform.Transform(document, null, stream);
+                        stream.Flush();
+                    }
                 }
             }
         }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 
 namespace NChanges.Core
 {
+    [DebuggerDisplay("{Name}")]
     public class TypeInfo
     {
         private List<MemberInfo> _members = new List<MemberInfo>();
