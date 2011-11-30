@@ -12,16 +12,81 @@ namespace NChanges.Tool
 {
     public class ExcelCommand
     {
-        private const int VERSION = 0;
-        private const int CHANGE = 1;
-        private const int NAMESPACE = 2;
-        private const int TYPE_NAME = 3;
-        private const int METHOD_NAME = 4;
-        private const int PARAMETERS = 5;
-        private const int RETURN_TYPE = 6;
-
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
+
+        private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
+
+        // TODO: Make it so these can be configured via a command-line option.
+        private readonly List<string> _columns = new List<string>
+                                                 {
+                                                     "version",
+                                                     "change",
+                                                     "namespace",
+                                                     "type",
+                                                     "member",
+                                                     "params",
+                                                     "return"
+                                                 }; 
+
+        static ExcelCommand()
+        {
+            _columnMap["version"] = new FieldInfo
+                                    {
+                                        Header = "Version",
+                                        Width = 3000,
+                                        Getter = (t, m, mc) => mc.Version
+                                    };
+            _columnMap["change"] = new FieldInfo
+                                    {
+                                        Header = "Change",
+                                        Width = 5000,
+                                        Getter = (t, m, mc) => mc.Kind.ToString()
+                                    };
+            _columnMap["namespace"] = new FieldInfo
+                                    {
+                                        Header = "Namespace",
+                                        Width = 15000,
+                                        Getter = (t, m, mc) => t.Namespace
+                                    };
+            _columnMap["type"] = new FieldInfo
+                                    {
+                                        Header = "Type",
+                                        Width = 12000,
+                                        Getter = (t, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
+                                    };
+            _columnMap["member"] = new FieldInfo
+                                    {
+                                        Header = "Member",
+                                        Width = 12000,
+                                        Getter = (t, m, mc) => m.Name
+                                    };
+            _columnMap["params"] = new FieldInfo
+                                    {
+                                        Header = "Parameters",
+                                        Width = 10000,
+                                        Getter = (t, m, mc) => string.Join(", ", m.Parameters.Select(mi => GetKeywordForTypeName(mi.Type) + " " + mi.Name).ToArray())
+                                    };
+            _columnMap["return"] = new FieldInfo
+                                    {
+                                        Header = "Return Type",
+                                        Width = 5000,
+                                        Getter = (t, m, mc) => "" // TODO: Uh...
+                                    };
+
+            // What about property types?
+            // What about type changes (new/removed types)?
+            // Should type kind be its own column (so it can be used to filter)?
+            // Where does change-specific information go (e.g., added parameter "foo")?
+            // Should users be able to configure headers and widths?
+        }
+
+        private class FieldInfo
+        {
+            public string Header { get; set; }
+            public int Width { get; set; }
+            public Func<TypeInfo, MemberInfo, MemberChangeInfo, string> Getter { get; set; }
+        }
 
         public ExcelCommand()
         {
@@ -65,28 +130,16 @@ namespace NChanges.Tool
             return report;
         }
 
-        private static void AddHeaders(ISheet worksheet)
+        private void AddHeaders(ISheet worksheet)
         {
             var row = worksheet.CreateRow(0);
 
-            row.CreateCell(NAMESPACE).SetCellValue("Namespace");
-            row.CreateCell(TYPE_NAME).SetCellValue("Type");
-            row.CreateCell(METHOD_NAME).SetCellValue("Method");
-            row.CreateCell(PARAMETERS).SetCellValue("Parameters");
-            row.CreateCell(RETURN_TYPE).SetCellValue("Return Type");
-            row.CreateCell(CHANGE).SetCellValue("Change");
-            row.CreateCell(VERSION).SetCellValue("Version");
+            ForEachColumn((i, f) => row.CreateCell(i).SetCellValue(f.Header));
         }
 
-        private static void SetColumnSize(ISheet worksheet)
+        private void SetColumnSize(ISheet worksheet)
         {
-            worksheet.SetColumnWidth(NAMESPACE, 15000);
-            worksheet.SetColumnWidth(TYPE_NAME, 12000);
-            worksheet.SetColumnWidth(METHOD_NAME, 12000);
-            worksheet.SetColumnWidth(PARAMETERS, 10000);
-            worksheet.SetColumnWidth(RETURN_TYPE, 5000);
-            worksheet.SetColumnWidth(CHANGE, 5000);
-            worksheet.SetColumnWidth(VERSION, 3000);
+            ForEachColumn((i, f) => worksheet.SetColumnWidth(i, f.Width));
         }
 
         private void AddData(AssemblyInfo report, ISheet worksheet)
@@ -95,25 +148,13 @@ namespace NChanges.Tool
 
             foreach (var typeInfo in report.Types)
             {
-                foreach (var methodInfo in typeInfo.Members)
+                foreach (var memberInfo in typeInfo.Members)
                 {
-                    foreach (var change in methodInfo.Changes)
+                    foreach (var change in memberInfo.Changes)
                     {
-                        var typeName = typeInfo.Name;
-                        var namesp = typeInfo.Namespace;
-                        var methodName = methodInfo.Name;
-                        var kind = change.Kind;
-                        var version = change.Version;
-                        var parameters = string.Join(", ", methodInfo.Parameters.Select(mi => GetKeywordForTypeName(mi.Type) + " " + mi.Name).ToArray());
-
                         var row = worksheet.CreateRow(rowIndex);
-                        
-                        row.CreateCell(METHOD_NAME).SetCellValue(methodName);
-                        row.CreateCell(NAMESPACE).SetCellValue(namesp);
-                        row.CreateCell(TYPE_NAME).SetCellValue(typeInfo.Kind.ToString().ToLower() + " " + typeName);
-                        row.CreateCell(VERSION).SetCellValue(version);
-                        row.CreateCell(CHANGE).SetCellValue(kind.ToString());
-                        row.CreateCell(PARAMETERS).SetCellValue(parameters);
+
+                        ForEachColumn((i, f) => row.CreateCell(i).SetCellValue(f.Getter(typeInfo, memberInfo, change)));
 
                         rowIndex++;
                     }
@@ -121,7 +162,15 @@ namespace NChanges.Tool
             }
         }
 
-        private string GetKeywordForTypeName(string typeName)
+        private void ForEachColumn(Action<int, FieldInfo> worker)
+        {
+            for (var i = 0; i < _columns.Count; i++)
+            {
+                worker(i, _columnMap[_columns[i]]);
+            }
+        }
+
+        private static string GetKeywordForTypeName(string typeName)
         {
             switch (typeName)
             {
