@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -23,7 +25,8 @@ namespace NChanges.GUI
 
             if (result == DialogResult.OK)
             {
-                TxtbxSelectedAssemblies.Text = string.Join(" ", openFileDialog1.SafeFileNames);
+                TxtbxSelectedAssemblies.Text = string.Join("\r\n", openFileDialog1.SafeFileNames);
+                TxtbxSnapshotLocation.Text = Directory.GetCurrentDirectory();
                 BtnCreateSnapshots.Enabled = true;
             }
         }
@@ -32,21 +35,29 @@ namespace NChanges.GUI
         {
             if (TxtbxVersion.Text != string.Empty)
             {
-                var snapshotNames = new string[openFileDialog1.SafeFileNames.Count()];
+                var snapshotNames = new List<string>();
 
-                for (var i = 0; i < openFileDialog1.SafeFileNames.Count(); i++)
+                foreach (var fileName in openFileDialog1.FileNames)
                 {
-                    snapshotNames[i] = openFileDialog1.SafeFileNames[i].Substring(0, openFileDialog1.SafeFileNames[i].Length - 4) +
+                    var snapshotName = TxtbxSnapshotLocation.Text + 
+                                       @"\" +
+                                       Path.GetFileNameWithoutExtension(fileName) +
                                        "-" +
                                        TxtbxVersion.Text +
                                        ".xml";
+                    snapshotNames.Add(snapshotName);
 
-                    var strCmdLine = @"snapshot " + openFileDialog1.FileNames[i] + " -v=" + TxtbxVersion.Text;
+                    var strCmdLine = @"snapshot " + 
+                                     fileName + 
+                                     " -v=" + 
+                                     TxtbxVersion.Text +
+                                     @" -o=" +
+                                     snapshotName;
 
                     System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, strCmdLine);
                 }
 
-                TxtbxSnapshotsCreated.Text = string.Join(" ", snapshotNames);
+                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(i => Path.GetFileName(i)).ToArray());
                 TxtbxVersion.Text = string.Empty;
                 LblSnapshotError.Visible = false;
             }
@@ -61,7 +72,7 @@ namespace NChanges.GUI
         {
             openFileDialog1.Filter = @"XML (*.xml)|*.xml";
             openFileDialog1.Multiselect = true;
-            //openFileDialog1.InitialDirectory = "";
+            openFileDialog1.InitialDirectory = TxtbxSnapshotLocation.Text;
 
             var result = openFileDialog1.ShowDialog();
 
@@ -83,7 +94,7 @@ namespace NChanges.GUI
         {
             try
             {
-                var cmdLineParams = @"report " + string.Join(" ", openFileDialog1.SafeFileNames);
+                var cmdLineParams = @"report " + string.Join(" ", openFileDialog1.FileNames);
 
                 System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
             }
@@ -129,6 +140,16 @@ namespace NChanges.GUI
                 {
                     System.Diagnostics.Process.Start(name);
                 }
+            }
+        }
+
+        private void BtnSaveSnapshotLocation_Click(object sender, EventArgs e)
+        {
+            var result = folderBrowserDialog1.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                TxtbxSnapshotLocation.Text = folderBrowserDialog1.SelectedPath;
             }
         }
     }
