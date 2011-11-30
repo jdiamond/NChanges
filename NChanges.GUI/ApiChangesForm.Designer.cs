@@ -86,7 +86,7 @@
             // btnExportToExcel
             // 
             this.btnExportToExcel.Enabled = false;
-            this.btnExportToExcel.Location = new System.Drawing.Point(99, 162);
+            this.btnExportToExcel.Location = new System.Drawing.Point(97, 162);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(124, 23);
             this.btnExportToExcel.TabIndex = 3;
@@ -96,7 +96,7 @@
             // 
             // TxtbxVersion
             // 
-            this.TxtbxVersion.Location = new System.Drawing.Point(97, 160);
+            this.TxtbxVersion.Location = new System.Drawing.Point(97, 156);
             this.TxtbxVersion.Name = "TxtbxVersion";
             this.TxtbxVersion.Size = new System.Drawing.Size(100, 20);
             this.TxtbxVersion.TabIndex = 4;
@@ -104,7 +104,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(2, 163);
+            this.label1.Location = new System.Drawing.Point(2, 159);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(92, 13);
             this.label1.TabIndex = 5;
@@ -115,10 +115,10 @@
             this.txtExcelName.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtExcelName.Location = new System.Drawing.Point(97, 195);
+            this.txtExcelName.Location = new System.Drawing.Point(97, 191);
             this.txtExcelName.Name = "txtExcelName";
             this.txtExcelName.ReadOnly = true;
-            this.txtExcelName.Size = new System.Drawing.Size(485, 20);
+            this.txtExcelName.Size = new System.Drawing.Size(479, 20);
             this.txtExcelName.TabIndex = 7;
             // 
             // label2
@@ -133,7 +133,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 194);
+            this.label3.Location = new System.Drawing.Point(2, 191);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(67, 13);
             this.label3.TabIndex = 10;
@@ -148,7 +148,7 @@
             this.TxtbxSelectedSnapshots.Name = "TxtbxSelectedSnapshots";
             this.TxtbxSelectedSnapshots.ReadOnly = true;
             this.TxtbxSelectedSnapshots.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSelectedSnapshots.Size = new System.Drawing.Size(485, 56);
+            this.TxtbxSelectedSnapshots.Size = new System.Drawing.Size(477, 56);
             this.TxtbxSelectedSnapshots.TabIndex = 14;
             // 
             // BtnSelectSnapshots
@@ -164,7 +164,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(4, 84);
+            this.label6.Location = new System.Drawing.Point(2, 84);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(96, 13);
             this.label6.TabIndex = 18;
@@ -201,7 +201,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(96, 64);
+            this.label11.Location = new System.Drawing.Point(96, 61);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(480, 13);
             this.label11.TabIndex = 22;
@@ -229,7 +229,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(203, 163);
+            this.label5.Location = new System.Drawing.Point(203, 159);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(72, 13);
             this.label5.TabIndex = 19;
@@ -239,18 +239,18 @@
             // 
             this.TxtbxSelectedAssemblies.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtbxSelectedAssemblies.Location = new System.Drawing.Point(98, 86);
+            this.TxtbxSelectedAssemblies.Location = new System.Drawing.Point(98, 81);
             this.TxtbxSelectedAssemblies.Multiline = true;
             this.TxtbxSelectedAssemblies.Name = "TxtbxSelectedAssemblies";
             this.TxtbxSelectedAssemblies.ReadOnly = true;
             this.TxtbxSelectedAssemblies.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSelectedAssemblies.Size = new System.Drawing.Size(486, 52);
+            this.TxtbxSelectedAssemblies.Size = new System.Drawing.Size(478, 52);
             this.TxtbxSelectedAssemblies.TabIndex = 16;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(2, 86);
+            this.label4.Location = new System.Drawing.Point(2, 81);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(90, 13);
             this.label4.TabIndex = 15;
@@ -265,7 +265,7 @@
             this.TxtbxSnapshotsCreated.Name = "TxtbxSnapshotsCreated";
             this.TxtbxSnapshotsCreated.ReadOnly = true;
             this.TxtbxSnapshotsCreated.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSnapshotsCreated.Size = new System.Drawing.Size(486, 52);
+            this.TxtbxSnapshotsCreated.Size = new System.Drawing.Size(478, 52);
             this.TxtbxSnapshotsCreated.TabIndex = 14;
             this.TxtbxSnapshotsCreated.WordWrap = false;
             // 
@@ -284,9 +284,9 @@
             this.groupBox2.Controls.Add(this.BtnSelectSnapshots);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.txtExcelName);
-            this.groupBox2.Location = new System.Drawing.Point(12, 383);
+            this.groupBox2.Location = new System.Drawing.Point(12, 379);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(584, 263);
+            this.groupBox2.Size = new System.Drawing.Size(584, 271);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Generate Report in Excel";
@@ -303,7 +303,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(99, 48);
+            this.label7.Location = new System.Drawing.Point(99, 46);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(163, 13);
             this.label7.TabIndex = 21;
@@ -313,7 +313,7 @@
             // 
             this.LblExportError.AutoSize = true;
             this.LblExportError.ForeColor = System.Drawing.Color.Crimson;
-            this.LblExportError.Location = new System.Drawing.Point(229, 167);
+            this.LblExportError.Location = new System.Drawing.Point(227, 167);
             this.LblExportError.Name = "LblExportError";
             this.LblExportError.Size = new System.Drawing.Size(32, 13);
             this.LblExportError.TabIndex = 20;
@@ -322,7 +322,7 @@
             // 
             // BtnOpenExcelReports
             // 
-            this.BtnOpenExcelReports.Location = new System.Drawing.Point(98, 229);
+            this.BtnOpenExcelReports.Location = new System.Drawing.Point(97, 231);
             this.BtnOpenExcelReports.Name = "BtnOpenExcelReports";
             this.BtnOpenExcelReports.Size = new System.Drawing.Size(124, 23);
             this.BtnOpenExcelReports.TabIndex = 19;
@@ -346,7 +346,7 @@
             // BtnSaveSnapshotLocation
             // 
             this.BtnSaveSnapshotLocation.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSaveSnapshotLocation.Location = new System.Drawing.Point(460, 202);
+            this.BtnSaveSnapshotLocation.Location = new System.Drawing.Point(452, 200);
             this.BtnSaveSnapshotLocation.Name = "BtnSaveSnapshotLocation";
             this.BtnSaveSnapshotLocation.Size = new System.Drawing.Size(124, 23);
             this.BtnSaveSnapshotLocation.TabIndex = 24;
@@ -360,7 +360,7 @@
             this.TxtbxSnapshotLocation.Location = new System.Drawing.Point(99, 202);
             this.TxtbxSnapshotLocation.Name = "TxtbxSnapshotLocation";
             this.TxtbxSnapshotLocation.ReadOnly = true;
-            this.TxtbxSnapshotLocation.Size = new System.Drawing.Size(355, 20);
+            this.TxtbxSnapshotLocation.Size = new System.Drawing.Size(349, 20);
             this.TxtbxSnapshotLocation.TabIndex = 25;
             // 
             // LblSnapshotError
@@ -379,7 +379,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(608, 658);
+            this.ClientSize = new System.Drawing.Size(608, 662);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Name = "ApiChangesForm";
