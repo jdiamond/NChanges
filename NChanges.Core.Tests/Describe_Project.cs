@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace NChanges.Core.Tests
 {
@@ -12,7 +11,8 @@ namespace NChanges.Core.Tests
             var project = new Project
             {
                 NChangesToolPath = @"C:\path\to\NChanges.Tool.exe",
-                TypesToExclude = "Internal$",
+                TypesToExcludePattern = "Internal$",
+                ExcelOutputPath = "Changes.xls",
                 AssembliesToSnapshot =
                 {
                     new AssemblyToSnapshot { Path = @"C:\path\to\Assembly1.dll" },
@@ -23,10 +23,11 @@ namespace NChanges.Core.Tests
             var xml = XML.UseWriter(project.WriteXml);
 
             Assert.AreEqual(
-@"<Project xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+@"<Project DefaultTargets=""Excel"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
   <PropertyGroup>
     <NChangesTool>C:\path\to\NChanges.Tool.exe</NChangesTool>
     <TypesToExclude>Internal$</TypesToExclude>
+    <ExcelOutput>Changes.xls</ExcelOutput>
   </PropertyGroup>
   <ItemGroup>
     <Assembly Include=""C:\path\to\Assembly1.dll"" />
@@ -34,6 +35,20 @@ namespace NChanges.Core.Tests
       <Version>1.2.3.4</Version>
     </Assembly>
   </ItemGroup>
+  <Target Name=""Snapshot"">
+    <Exec Command=""$(NChangesTool) snapshot %(Assembly.Identity) -v=%(Version) -x=$(TypesToExclude)"" />
+  </Target>
+  <Target Name=""Report"">
+    <Exec Command=""$(NChangesTool) report *-snapshot.xml"" />
+  </Target>
+  <Target Name=""Excel"">
+    <Exec Command=""$(NChangesTool) excel *-report.xml -o=$(ExcelOutput)"" />
+  </Target>
+  <Target Name=""Clean"">
+    <Delete Files=""%(Assembly.Filename)-%(Version)-snapshot.xml"" />
+    <Delete Files=""%(Assembly.Filename)-%(Version)-report.xml"" />
+    <Delete Files=""$(ExcelOutput)"" />
+  </Target>
 </Project>",
                 xml);
         }
