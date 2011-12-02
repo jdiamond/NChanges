@@ -67,6 +67,9 @@
             this.BtnSelectReports = new System.Windows.Forms.Button();
             this.BtnOpenExcelReports = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
+            this.TxtbxTypesToExclude = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -88,11 +91,14 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(603, 358);
+            this.tabControl1.Size = new System.Drawing.Size(605, 431);
             this.tabControl1.TabIndex = 23;
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label17);
+            this.tabPage1.Controls.Add(this.label16);
+            this.tabPage1.Controls.Add(this.TxtbxTypesToExclude);
             this.tabPage1.Controls.Add(this.TxtbxSnapshotLocation);
             this.tabPage1.Controls.Add(this.BtnSaveSnapshotLocation);
             this.tabPage1.Controls.Add(this.label12);
@@ -111,25 +117,25 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(595, 332);
+            this.tabPage1.Size = new System.Drawing.Size(597, 405);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Snapshot";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // TxtbxSnapshotLocation
             // 
-            this.TxtbxSnapshotLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxSnapshotLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtbxSnapshotLocation.Location = new System.Drawing.Point(107, 194);
+            this.TxtbxSnapshotLocation.Location = new System.Drawing.Point(105, 245);
             this.TxtbxSnapshotLocation.Name = "TxtbxSnapshotLocation";
             this.TxtbxSnapshotLocation.ReadOnly = true;
-            this.TxtbxSnapshotLocation.Size = new System.Drawing.Size(345, 20);
+            this.TxtbxSnapshotLocation.Size = new System.Drawing.Size(349, 20);
             this.TxtbxSnapshotLocation.TabIndex = 40;
             // 
             // BtnSaveSnapshotLocation
             // 
-            this.BtnSaveSnapshotLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnSaveSnapshotLocation.Location = new System.Drawing.Point(458, 194);
+            this.BtnSaveSnapshotLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnSaveSnapshotLocation.Location = new System.Drawing.Point(460, 242);
             this.BtnSaveSnapshotLocation.Name = "BtnSaveSnapshotLocation";
             this.BtnSaveSnapshotLocation.Size = new System.Drawing.Size(122, 23);
             this.BtnSaveSnapshotLocation.TabIndex = 39;
@@ -139,8 +145,9 @@
             // 
             // label12
             // 
+            this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(10, 197);
+            this.label12.Location = new System.Drawing.Point(9, 248);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(95, 13);
             this.label12.TabIndex = 38;
@@ -168,8 +175,9 @@
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(211, 151);
+            this.label5.Location = new System.Drawing.Point(210, 175);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(72, 13);
             this.label5.TabIndex = 35;
@@ -177,9 +185,10 @@
             // 
             // LblSnapshotError
             // 
+            this.LblSnapshotError.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LblSnapshotError.AutoSize = true;
             this.LblSnapshotError.ForeColor = System.Drawing.Color.Crimson;
-            this.LblSnapshotError.Location = new System.Drawing.Point(235, 240);
+            this.LblSnapshotError.Location = new System.Drawing.Point(235, 295);
             this.LblSnapshotError.Name = "LblSnapshotError";
             this.LblSnapshotError.Size = new System.Drawing.Size(32, 13);
             this.LblSnapshotError.TabIndex = 34;
@@ -188,20 +197,21 @@
             // 
             // TxtbxSelectedAssemblies
             // 
-            this.TxtbxSelectedAssemblies.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxSelectedAssemblies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtbxSelectedAssemblies.Location = new System.Drawing.Point(106, 73);
             this.TxtbxSelectedAssemblies.Multiline = true;
             this.TxtbxSelectedAssemblies.Name = "TxtbxSelectedAssemblies";
             this.TxtbxSelectedAssemblies.ReadOnly = true;
             this.TxtbxSelectedAssemblies.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSelectedAssemblies.Size = new System.Drawing.Size(474, 52);
+            this.TxtbxSelectedAssemblies.Size = new System.Drawing.Size(476, 70);
             this.TxtbxSelectedAssemblies.TabIndex = 33;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 73);
+            this.label4.Location = new System.Drawing.Point(9, 73);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(90, 13);
             this.label4.TabIndex = 32;
@@ -209,21 +219,22 @@
             // 
             // TxtbxSnapshotsCreated
             // 
-            this.TxtbxSnapshotsCreated.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxSnapshotsCreated.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtbxSnapshotsCreated.Location = new System.Drawing.Point(106, 264);
+            this.TxtbxSnapshotsCreated.Location = new System.Drawing.Point(105, 319);
             this.TxtbxSnapshotsCreated.Multiline = true;
             this.TxtbxSnapshotsCreated.Name = "TxtbxSnapshotsCreated";
             this.TxtbxSnapshotsCreated.ReadOnly = true;
             this.TxtbxSnapshotsCreated.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSnapshotsCreated.Size = new System.Drawing.Size(474, 52);
+            this.TxtbxSnapshotsCreated.Size = new System.Drawing.Size(479, 70);
             this.TxtbxSnapshotsCreated.TabIndex = 31;
             this.TxtbxSnapshotsCreated.WordWrap = false;
             // 
             // BtnCreateSnapshots
             // 
+            this.BtnCreateSnapshots.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BtnCreateSnapshots.Enabled = false;
-            this.BtnCreateSnapshots.Location = new System.Drawing.Point(105, 235);
+            this.BtnCreateSnapshots.Location = new System.Drawing.Point(105, 290);
             this.BtnCreateSnapshots.Name = "BtnCreateSnapshots";
             this.BtnCreateSnapshots.Size = new System.Drawing.Size(124, 23);
             this.BtnCreateSnapshots.TabIndex = 27;
@@ -233,7 +244,7 @@
             // 
             // BtnSelectAssemblies
             // 
-            this.BtnSelectAssemblies.Location = new System.Drawing.Point(106, 11);
+            this.BtnSelectAssemblies.Location = new System.Drawing.Point(105, 11);
             this.BtnSelectAssemblies.Name = "BtnSelectAssemblies";
             this.BtnSelectAssemblies.Size = new System.Drawing.Size(124, 23);
             this.BtnSelectAssemblies.TabIndex = 26;
@@ -243,15 +254,17 @@
             // 
             // TxtbxVersion
             // 
-            this.TxtbxVersion.Location = new System.Drawing.Point(105, 148);
+            this.TxtbxVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.TxtbxVersion.Location = new System.Drawing.Point(105, 172);
             this.TxtbxVersion.Name = "TxtbxVersion";
-            this.TxtbxVersion.Size = new System.Drawing.Size(100, 20);
+            this.TxtbxVersion.Size = new System.Drawing.Size(98, 20);
             this.TxtbxVersion.TabIndex = 28;
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 151);
+            this.label1.Location = new System.Drawing.Point(9, 172);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(92, 13);
             this.label1.TabIndex = 29;
@@ -259,8 +272,9 @@
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 264);
+            this.label2.Location = new System.Drawing.Point(9, 319);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 13);
             this.label2.TabIndex = 30;
@@ -280,15 +294,16 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(595, 332);
+            this.tabPage2.Size = new System.Drawing.Size(597, 405);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Report";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // label9
             // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(9, 262);
+            this.label9.Location = new System.Drawing.Point(10, 265);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(78, 13);
             this.label9.TabIndex = 41;
@@ -296,21 +311,22 @@
             // 
             // TxtbxReportNamesCreated
             // 
-            this.TxtbxReportNamesCreated.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxReportNamesCreated.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtbxReportNamesCreated.Location = new System.Drawing.Point(106, 226);
+            this.TxtbxReportNamesCreated.Location = new System.Drawing.Point(106, 265);
             this.TxtbxReportNamesCreated.Multiline = true;
             this.TxtbxReportNamesCreated.Name = "TxtbxReportNamesCreated";
             this.TxtbxReportNamesCreated.ReadOnly = true;
             this.TxtbxReportNamesCreated.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxReportNamesCreated.Size = new System.Drawing.Size(476, 90);
+            this.TxtbxReportNamesCreated.Size = new System.Drawing.Size(478, 125);
             this.TxtbxReportNamesCreated.TabIndex = 40;
             // 
             // LblReportError
             // 
+            this.LblReportError.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LblReportError.AutoSize = true;
             this.LblReportError.ForeColor = System.Drawing.Color.Crimson;
-            this.LblReportError.Location = new System.Drawing.Point(235, 202);
+            this.LblReportError.Location = new System.Drawing.Point(236, 237);
             this.LblReportError.Name = "LblReportError";
             this.LblReportError.Size = new System.Drawing.Size(32, 13);
             this.LblReportError.TabIndex = 39;
@@ -319,8 +335,9 @@
             // 
             // BtnCreateReports
             // 
+            this.BtnCreateReports.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BtnCreateReports.Enabled = false;
-            this.BtnCreateReports.Location = new System.Drawing.Point(105, 197);
+            this.BtnCreateReports.Location = new System.Drawing.Point(106, 232);
             this.BtnCreateReports.Name = "BtnCreateReports";
             this.BtnCreateReports.Size = new System.Drawing.Size(124, 23);
             this.BtnCreateReports.TabIndex = 38;
@@ -357,14 +374,15 @@
             // 
             // TxtbxSelectedSnapshots
             // 
-            this.TxtbxSelectedSnapshots.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxSelectedSnapshots.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtbxSelectedSnapshots.Location = new System.Drawing.Point(106, 80);
             this.TxtbxSelectedSnapshots.Multiline = true;
             this.TxtbxSelectedSnapshots.Name = "TxtbxSelectedSnapshots";
             this.TxtbxSelectedSnapshots.ReadOnly = true;
             this.TxtbxSelectedSnapshots.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxSelectedSnapshots.Size = new System.Drawing.Size(476, 90);
+            this.TxtbxSelectedSnapshots.Size = new System.Drawing.Size(478, 125);
             this.TxtbxSelectedSnapshots.TabIndex = 33;
             // 
             // BtnSelectSnapshots
@@ -390,27 +408,28 @@
             this.tabPage3.Controls.Add(this.label3);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(595, 332);
+            this.tabPage3.Size = new System.Drawing.Size(597, 405);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Export To Excel";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // TxtbxExcelNames
             // 
-            this.TxtbxExcelNames.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxExcelNames.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtbxExcelNames.Location = new System.Drawing.Point(102, 203);
+            this.TxtbxExcelNames.Location = new System.Drawing.Point(102, 240);
             this.TxtbxExcelNames.Multiline = true;
             this.TxtbxExcelNames.Name = "TxtbxExcelNames";
             this.TxtbxExcelNames.ReadOnly = true;
             this.TxtbxExcelNames.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxExcelNames.Size = new System.Drawing.Size(476, 70);
+            this.TxtbxExcelNames.Size = new System.Drawing.Size(478, 103);
             this.TxtbxExcelNames.TabIndex = 44;
             // 
             // BtnExportToExcel
             // 
+            this.BtnExportToExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BtnExportToExcel.Enabled = false;
-            this.BtnExportToExcel.Location = new System.Drawing.Point(101, 174);
+            this.BtnExportToExcel.Location = new System.Drawing.Point(102, 211);
             this.BtnExportToExcel.Name = "BtnExportToExcel";
             this.BtnExportToExcel.Size = new System.Drawing.Size(124, 23);
             this.BtnExportToExcel.TabIndex = 43;
@@ -447,14 +466,15 @@
             // 
             // TxtbxReportNamesSelected
             // 
-            this.TxtbxReportNamesSelected.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtbxReportNamesSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtbxReportNamesSelected.Location = new System.Drawing.Point(102, 80);
             this.TxtbxReportNamesSelected.Multiline = true;
             this.TxtbxReportNamesSelected.Name = "TxtbxReportNamesSelected";
             this.TxtbxReportNamesSelected.ReadOnly = true;
             this.TxtbxReportNamesSelected.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.TxtbxReportNamesSelected.Size = new System.Drawing.Size(476, 70);
+            this.TxtbxReportNamesSelected.Size = new System.Drawing.Size(478, 103);
             this.TxtbxReportNamesSelected.TabIndex = 38;
             // 
             // BtnSelectReports
@@ -469,7 +489,8 @@
             // 
             // BtnOpenExcelReports
             // 
-            this.BtnOpenExcelReports.Location = new System.Drawing.Point(101, 296);
+            this.BtnOpenExcelReports.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.BtnOpenExcelReports.Location = new System.Drawing.Point(101, 370);
             this.BtnOpenExcelReports.Name = "BtnOpenExcelReports";
             this.BtnOpenExcelReports.Size = new System.Drawing.Size(124, 23);
             this.BtnOpenExcelReports.TabIndex = 29;
@@ -479,19 +500,48 @@
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 203);
+            this.label3.Location = new System.Drawing.Point(13, 240);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(72, 13);
             this.label3.TabIndex = 25;
             this.label3.Text = "Excel Names:";
+            // 
+            // TxtbxTypesToExclude
+            // 
+            this.TxtbxTypesToExclude.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.TxtbxTypesToExclude.Location = new System.Drawing.Point(105, 198);
+            this.TxtbxTypesToExclude.Name = "TxtbxTypesToExclude";
+            this.TxtbxTypesToExclude.Size = new System.Drawing.Size(98, 20);
+            this.TxtbxTypesToExclude.TabIndex = 41;
+            // 
+            // label16
+            // 
+            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(9, 201);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(96, 13);
+            this.label16.TabIndex = 42;
+            this.label16.Text = "Types To Exclude:";
+            // 
+            // label17
+            // 
+            this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(210, 201);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(80, 13);
+            this.label17.TabIndex = 43;
+            this.label17.Text = "ex.: Decorator$";
             // 
             // ApiChangesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(626, 383);
+            this.ClientSize = new System.Drawing.Size(628, 455);
             this.Controls.Add(this.tabControl1);
             this.Name = "ApiChangesForm";
             this.Text = "NChanges GUI";
@@ -547,6 +597,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox TxtbxExcelNames;
         private System.Windows.Forms.Button BtnExportToExcel;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox TxtbxTypesToExclude;
     }
 }
 

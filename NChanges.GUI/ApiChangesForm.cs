@@ -53,10 +53,15 @@ namespace NChanges.GUI
                                      @" -o=" +
                                      snapshotName;
 
+                    if (!string.IsNullOrEmpty(TxtbxTypesToExclude.Text))
+                    {
+                        strCmdLine = strCmdLine + " -x=" + TxtbxTypesToExclude.Text;
+                    }
+
                     System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, strCmdLine);
                 }
 
-                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(i => Path.GetFileName(i)).ToArray());
+                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(Path.GetFileName).ToArray());
                 TxtbxVersion.Text = string.Empty;
                 LblSnapshotError.Visible = false;
             }
