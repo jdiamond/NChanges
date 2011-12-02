@@ -1,10 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace NChanges.Core
 {
     public class Project
     {
+        private const string MSBuildNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
+
+        private const string NChangesToolPathPropertyName = "NChangesTool";
+        private const string TypesToExcludePatternPropertyName = "TypesToExclude";
+        private const string ExcelOutputPathPropertyName = "ExcelOutput";
+        private const string AssembliesToSnapshotItemName = "Assembly";
+        private const string VersionMetaDataName = "Version";
+
         private readonly List<AssemblyToSnapshot> _assembliesToSnapshot = new List<AssemblyToSnapshot>();
 
         public string NChangesToolPath { get; set; }
@@ -14,7 +23,7 @@ namespace NChanges.Core
 
         public void WriteXml(XmlWriter xmlWriter)
         {
-            xmlWriter.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
+            xmlWriter.WriteStartElement("Project", MSBuildNamespace);
             xmlWriter.WriteAttributeString("DefaultTargets", "Excel");
 
             WriteProperties(xmlWriter);
@@ -28,9 +37,9 @@ namespace NChanges.Core
         {
             xmlWriter.WriteStartElement("PropertyGroup");
 
-            xmlWriter.WriteElementString("NChangesTool", NChangesToolPath);
-            xmlWriter.WriteElementString("TypesToExclude", TypesToExcludePattern);
-            xmlWriter.WriteElementString("ExcelOutput", ExcelOutputPath);
+            xmlWriter.WriteElementString(NChangesToolPathPropertyName, NChangesToolPath);
+            xmlWriter.WriteElementString(TypesToExcludePatternPropertyName, TypesToExcludePattern);
+            xmlWriter.WriteElementString(ExcelOutputPathPropertyName, ExcelOutputPath);
 
             xmlWriter.WriteEndElement();
         }
@@ -41,12 +50,12 @@ namespace NChanges.Core
 
             foreach (var ats in AssembliesToSnapshot)
             {
-                xmlWriter.WriteStartElement("Assembly");
+                xmlWriter.WriteStartElement(AssembliesToSnapshotItemName);
                 xmlWriter.WriteAttributeString("Include", ats.Path);
 
                 if (!string.IsNullOrEmpty(ats.Version))
                 {
-                    xmlWriter.WriteElementString("Version", ats.Version);
+                    xmlWriter.WriteElementString(VersionMetaDataName, ats.Version);
                 }
 
                 xmlWriter.WriteEndElement();
@@ -69,7 +78,14 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("Name", "Snapshot");
 
             xmlWriter.WriteStartElement("Exec");
-            xmlWriter.WriteAttributeString("Command", "$(NChangesTool) snapshot %(Assembly.Identity) -v=%(Version) -x=$(TypesToExclude)");
+            xmlWriter.WriteAttributeString(
+                "Command",
+                string.Format(
+                    "$({0}) snapshot %({1}.Identity) -v=%({2}) -x=$({3})",
+                    NChangesToolPathPropertyName,
+                    AssembliesToSnapshotItemName,
+                    VersionMetaDataName,
+                    TypesToExcludePatternPropertyName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteEndElement();
@@ -81,7 +97,9 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("Name", "Report");
 
             xmlWriter.WriteStartElement("Exec");
-            xmlWriter.WriteAttributeString("Command", "$(NChangesTool) report *-snapshot.xml");
+            xmlWriter.WriteAttributeString(
+                "Command",
+                string.Format("$({0}) report *-snapshot.xml", NChangesToolPathPropertyName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteEndElement();
@@ -93,7 +111,12 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("Name", "Excel");
 
             xmlWriter.WriteStartElement("Exec");
-            xmlWriter.WriteAttributeString("Command", "$(NChangesTool) excel *-report.xml -o=$(ExcelOutput)");
+            xmlWriter.WriteAttributeString(
+                "Command",
+                string.Format(
+                    "$({0}) excel *-report.xml -o=$({1})",
+                    NChangesToolPathPropertyName,
+                    ExcelOutputPathPropertyName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteEndElement();
@@ -105,18 +128,72 @@ namespace NChanges.Core
             xmlWriter.WriteAttributeString("Name", "Clean");
 
             xmlWriter.WriteStartElement("Delete");
-            xmlWriter.WriteAttributeString("Files", "%(Assembly.Filename)-%(Version)-snapshot.xml");
+            xmlWriter.WriteAttributeString(
+                "Files",
+                string.Format("%({0}.Filename)-%({1})-snapshot.xml", AssembliesToSnapshotItemName, VersionMetaDataName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteStartElement("Delete");
-            xmlWriter.WriteAttributeString("Files", "%(Assembly.Filename)-%(Version)-report.xml");
+            xmlWriter.WriteAttributeString(
+                "Files",
+                string.Format("%({0}.Filename)-%({1})-report.xml", AssembliesToSnapshotItemName, VersionMetaDataName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteStartElement("Delete");
-            xmlWriter.WriteAttributeString("Files", "$(ExcelOutput)");
+            xmlWriter.WriteAttributeString("Files", string.Format("$({0})", ExcelOutputPathPropertyName));
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteEndElement();
+        }
+
+        public void ReadXml(XmlReader xmlReader)
+        {
+            var doc = new XmlDocument();
+            doc.Load(xmlReader);
+
+            var nsManager = new XmlNamespaceManager(doc.NameTable);
+            nsManager.AddNamespace("msbuild", MSBuildNamespace);
+
+            NChangesToolPath = GetPropertyValue(NChangesToolPathPropertyName, doc, nsManager);
+            TypesToExcludePattern = GetPropertyValue(TypesToExcludePatternPropertyName, doc, nsManager);
+            ExcelOutputPath = GetPropertyValue(ExcelOutputPathPropertyName, doc, nsManager);
+
+            var nodes = doc.SelectNodes("/msbuild:Project/msbuild:ItemGroup/msbuild:" + AssembliesToSnapshotItemName, nsManager);
+
+            if (nodes != null)
+            {
+                foreach (var node in nodes.Cast<XmlElement>())
+                {
+                    var path = node.GetAttribute("Include");
+
+                    string version = null;
+
+                    var versionNode = node.SelectSingleNode("msbuild:" + VersionMetaDataName, nsManager);
+
+                    if (versionNode != null)
+                    {
+                        version = versionNode.InnerText;
+                    }
+
+                    AssembliesToSnapshot.Add(new AssemblyToSnapshot
+                                             {
+                                                 Path = path,
+                                                 Version = version
+                                             });
+                }
+            }
+        }
+
+        private static string GetPropertyValue(string propertyName, XmlDocument doc, XmlNamespaceManager nsManager)
+        {
+            var node = doc.SelectSingleNode("/msbuild:Project/msbuild:PropertyGroup/msbuild:" + propertyName, nsManager);
+
+            if (node != null)
+            {
+                return node.InnerText;
+            }
+
+            return null;
         }
     }
 
