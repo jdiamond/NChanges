@@ -12,7 +12,7 @@ namespace NChanges.Tool
     public class SnapshotCommand
     {
         private readonly OptionSet _optionSet;
-        private string _output = "%name%-%version%.xml";
+        private string _output = "%name%-%version%-snapshot.xml";
         private string _version;
         private string _excludePattern;
 
