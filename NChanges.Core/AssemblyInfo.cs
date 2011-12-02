@@ -65,15 +65,22 @@ namespace NChanges.Core
                 Name = xmlReader.GetAttribute("name");
                 Version = xmlReader.GetAttribute("version");
 
-                if (xmlReader.ReadToDescendant("type"))
+                if (!xmlReader.IsEmptyElement)
                 {
-                    do
+                    var childReader = xmlReader.ReadSubtree();
+
+                    while (childReader.Read())
                     {
-                        var type = new TypeInfo();
-                        type.ReadXml(xmlReader);
-                        Types.Add(type);
+                        if (childReader.NodeType == XmlNodeType.Element)
+                        {
+                            if (childReader.Name == "type")
+                            {
+                                var type = new TypeInfo();
+                                type.ReadXml(xmlReader);
+                                Types.Add(type);
+                            }
+                        }
                     }
-                    while (xmlReader.ReadToFollowing("type"));
                 }
             }
         }
