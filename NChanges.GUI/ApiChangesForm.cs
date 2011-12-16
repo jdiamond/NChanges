@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace NChanges.GUI
@@ -44,7 +43,7 @@ namespace NChanges.GUI
                                        Path.GetFileNameWithoutExtension(fileName) +
                                        "-" +
                                        TxtbxVersion.Text +
-                                       ".xml";
+                                       "-snapshot.xml";
                     snapshotNames.Add(snapshotName);
 
                     var strCmdLine = @"snapshot " + 
@@ -54,10 +53,15 @@ namespace NChanges.GUI
                                      @" -o=" +
                                      snapshotName;
 
+                    if (!string.IsNullOrEmpty(TxtbxTypesToExclude.Text))
+                    {
+                        strCmdLine = strCmdLine + " -x=" + TxtbxTypesToExclude.Text;
+                    }
+
                     System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, strCmdLine);
                 }
 
-                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(i => Path.GetFileName(i)).ToArray());
+                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(Path.GetFileName).ToArray());
                 TxtbxVersion.Text = string.Empty;
                 LblSnapshotError.Visible = false;
             }
@@ -70,7 +74,7 @@ namespace NChanges.GUI
 
         private void BtnSelectSnapshots_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = @"XML (*.xml)|*.xml";
+            openFileDialog1.Filter = @"XML (*-snapshot.xml)|*-snapshot.xml";
             openFileDialog1.Multiselect = true;
             openFileDialog1.InitialDirectory = TxtbxSnapshotLocation.Text;
 
@@ -79,54 +83,28 @@ namespace NChanges.GUI
             if (result == DialogResult.OK)
             {
                 TxtbxSelectedSnapshots.Text = string.Join(" ", openFileDialog1.SafeFileNames);
-                btnExportToExcel.Enabled = true;
+                BtnCreateReports.Enabled = true;
             }
         }
 
-        private void btnExportToExcel_Click(object sender, EventArgs e)
-        {
-            CreateReport();
-            Thread.Sleep(300);
-            ExportReportToExcel();
-        }
-
-        private void CreateReport()
+        private void BtnExportToExcel_Click(object sender, EventArgs e)
         {
             try
             {
-                var cmdLineParams = @"report " + string.Join(" ", openFileDialog1.FileNames);
-
-                System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
-            }
-            catch (Exception e)
-            {
-                LblExportError.Text = e.Message;
-                LblExportError.Visible = true;
-            }
-        }
-
-        private void ExportReportToExcel()
-        {
-            try
-            {
-                var olderReportName = openFileDialog1.SafeFileNames.Last();
-                var reportName = olderReportName.Substring(0, olderReportName.Length - 4) +
-                                 "-report.xml";
-                var cmdLineParams = @"export " + reportName;
+                var cmdLineParams = @"excel " + string.Join(" ", openFileDialog1.FileNames);
 
                 System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
 
-                txtExcelName.Text = reportName.Substring(0, reportName.Length - 3) + "xls";
-                LblExportError.Visible = false;
+                TxtbxExcelNames.Text = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(openFileDialog1.SafeFileNames.First())) + ".xls";
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                LblExportError.Text = e.Message;
-                LblExportError.Visible = true;
+                LblReportError.Text = ex.Message;
+                LblReportError.Visible = true;
             }
         }
-
+        
         private void BtnOpenExcelReports_Click(object sender, EventArgs e)
         {
             openFileDialog1.Filter = @"Excel (*.xls)|*.xls";
@@ -150,6 +128,40 @@ namespace NChanges.GUI
             if (result == DialogResult.OK)
             {
                 TxtbxSnapshotLocation.Text = folderBrowserDialog1.SelectedPath;
+            }
+        }
+
+        private void BtnCreateReports_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var cmdLineParams = @"report " + string.Join(" ", openFileDialog1.FileNames);
+
+                System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
+
+                TxtbxReportNamesCreated.Text = string.Join("\r\n", openFileDialog1.SafeFileNames.Select(i => i.Replace("snapshot", "report")));
+                LblReportError.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                LblReportError.Text = ex.Message;
+                LblReportError.Visible = true;
+            }
+        }
+
+        private void BtnSelectReports_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = @"XML (*-report.xml)|*-report.xml";
+            openFileDialog1.Multiselect = true;
+            openFileDialog1.InitialDirectory = TxtbxSnapshotLocation.Text;
+
+            var result = openFileDialog1.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                TxtbxReportNamesSelected.Text = string.Join(" ", openFileDialog1.SafeFileNames);
+
+                BtnExportToExcel.Enabled = true;
             }
         }
     }
