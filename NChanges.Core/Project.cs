@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml;
 
 namespace NChanges.Core
@@ -194,6 +197,13 @@ namespace NChanges.Core
             }
 
             return null;
+        }
+
+        public static void Run(string projectPath, string targetName)
+        {
+            var msbuildPath = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "MSBuild.exe");
+
+            Process.Start(msbuildPath, projectPath + " /t:" + targetName);
         }
     }
 
