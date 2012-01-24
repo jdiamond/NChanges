@@ -52,8 +52,10 @@
     <Compile Include="ApiChangesForm.Designer.cs">
       <DependentUpon>ApiChangesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="InputBox.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
     <EmbeddedResource Include="ApiChangesForm.resx">
       <DependentUpon>ApiChangesForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -77,6 +79,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NChanges.Core\NChanges.Core.csproj">
+      <Project>{3B8E9ED5-581A-4E1E-9484-24551AA8CFFD}</Project>
+      <Name>NChanges.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NChanges.Tool\NChanges.Tool.csproj">
       <Project>{B2B52A41-082B-435C-A29F-F60518C274DD}</Project>
       <Name>NChanges.Tool</Name>

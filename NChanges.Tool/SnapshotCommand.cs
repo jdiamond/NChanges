@@ -30,7 +30,7 @@ namespace NChanges.Tool
         {
             var extras = _optionSet.Parse(args);
 
-            foreach (string arg in PathHelper.ExpandPaths(extras))
+            foreach (var arg in PathHelper.ExpandPaths(extras))
             {
                 var absolutePath = Path.GetFullPath(arg);
 
@@ -38,6 +38,8 @@ namespace NChanges.Tool
 
                 var assemblyInfo = new AssemblyInfo();
                 assemblyInfo.ReadAssembly(assembly, _excludePattern);
+
+                Console.WriteLine("{0} contains {1} types...", assemblyInfo.Name, assemblyInfo.Types.Count);
 
                 if (_version != null)
                 {
@@ -51,6 +53,7 @@ namespace NChanges.Tool
                                            Formatting = Formatting.Indented
                                        })
                 {
+                    Console.WriteLine("Writing snapshot to {0}...", fileName);
                     assemblyInfo.WriteXml(xmlWriter);
                 }
             }

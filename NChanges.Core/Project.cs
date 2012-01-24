@@ -3,12 +3,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Xml;
 
 namespace NChanges.Core
 {
     public class Project
     {
+        public static readonly string SnapshotTaskName = "Snapshot";
+        public static readonly string ReportTaskName = "Report";
+        public static readonly string ExcelTaskName = "Excel";
+        public static readonly string CleanTaskName = "Clean";
+
         private const string MSBuildNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
 
         private const string NChangesToolPathPropertyName = "NChangesTool";
@@ -23,6 +29,15 @@ namespace NChanges.Core
         public string TypesToExcludePattern { get; set; }
         public string ExcelOutputPath { get; set; }
         public ICollection<AssemblyToSnapshot> AssembliesToSnapshot { get { return _assembliesToSnapshot; } }
+
+        public void WriteXml(string path)
+        {
+            using (var writer = new XmlTextWriter(path, Encoding.UTF8))
+            {
+                writer.Formatting = Formatting.Indented;
+                WriteXml(writer);
+            }
+        }
 
         public void WriteXml(XmlWriter xmlWriter)
         {
@@ -78,13 +93,13 @@ namespace NChanges.Core
         private static void WriteSnapshotTarget(XmlWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("Target");
-            xmlWriter.WriteAttributeString("Name", "Snapshot");
+            xmlWriter.WriteAttributeString("Name", SnapshotTaskName);
 
             xmlWriter.WriteStartElement("Exec");
             xmlWriter.WriteAttributeString(
                 "Command",
                 string.Format(
-                    "$({0}) snapshot %({1}.Identity) -v=%({2}) -x=$({3})",
+                    "$({0}) snapshot \"%({1}.Identity)\" -v=\"%({2})\" -x=\"$({3})\"",
                     NChangesToolPathPropertyName,
                     AssembliesToSnapshotItemName,
                     VersionMetaDataName,
@@ -97,7 +112,7 @@ namespace NChanges.Core
         private static void WriteReportTarget(XmlWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("Target");
-            xmlWriter.WriteAttributeString("Name", "Report");
+            xmlWriter.WriteAttributeString("Name", ReportTaskName);
 
             xmlWriter.WriteStartElement("Exec");
             xmlWriter.WriteAttributeString(
@@ -111,13 +126,13 @@ namespace NChanges.Core
         private static void WriteExcelTarget(XmlWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("Target");
-            xmlWriter.WriteAttributeString("Name", "Excel");
+            xmlWriter.WriteAttributeString("Name", ExcelTaskName);
 
             xmlWriter.WriteStartElement("Exec");
             xmlWriter.WriteAttributeString(
                 "Command",
                 string.Format(
-                    "$({0}) excel *-report.xml -o=$({1})",
+                    "$({0}) excel *-report.xml -o=\"$({1})\"",
                     NChangesToolPathPropertyName,
                     ExcelOutputPathPropertyName));
             xmlWriter.WriteEndElement();
@@ -128,7 +143,7 @@ namespace NChanges.Core
         private static void WriteCleanTarget(XmlWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("Target");
-            xmlWriter.WriteAttributeString("Name", "Clean");
+            xmlWriter.WriteAttributeString("Name", CleanTaskName);
 
             xmlWriter.WriteStartElement("Delete");
             xmlWriter.WriteAttributeString(
@@ -147,6 +162,14 @@ namespace NChanges.Core
             xmlWriter.WriteEndElement();
 
             xmlWriter.WriteEndElement();
+        }
+
+        public void ReadXml(string path)
+        {
+            using (var writer = new XmlTextReader(path))
+            {
+                ReadXml(writer);
+            }
         }
 
         public void ReadXml(XmlReader xmlReader)

@@ -1,167 +1,308 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using NChanges.Core;
 
 namespace NChanges.GUI
 {
     public partial class ApiChangesForm : Form
     {
-        private const string N_CHANGES_EXE_PATH = @"NChanges.Tool.exe";
+        private const string NCHANGES_TOOL_EXE = "NChanges.Tool.exe";
+        private const string TITLE_SUFFIX = "NChanges GUI";
+        private const string TITLE_SEPARATOR = " - ";
+        private const string PROJECT_FILTER = "NChanges Files (*.nchanges)|*.nchanges|MSBuild Files (*.msbuild)|*.msbuld|All Files (*.*)|*.*";
+        private const string ASSEMBLY_FILTER = "Assembly Files (*.dll)|*.dll";
+
+        private string _currentProjectPath;
 
         public ApiChangesForm()
         {
             InitializeComponent();
+            UpdateRecentProjects();
         }
 
-        private void BtnSelectAssemblies_Click(object sender, EventArgs e)
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = @"Assemblies (*.dll)|*.dll";
-            openFileDialog1.Multiselect = true;
+            var d = new OpenFileDialog();
+            SetFileDialogProperties(d);
 
-            var result = openFileDialog1.ShowDialog();
+            var result = d.ShowDialog(this);
 
             if (result == DialogResult.OK)
             {
-                TxtbxSelectedAssemblies.Text = string.Join("\r\n", openFileDialog1.SafeFileNames);
-                TxtbxSnapshotLocation.Text = Directory.GetCurrentDirectory();
-                BtnCreateSnapshots.Enabled = true;
+                LoadProject(d.FileName);
             }
         }
 
-        private void BtnCreateSnapshots_Click(object sender, EventArgs e)
+        private void closeProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (TxtbxVersion.Text != string.Empty)
+            UpdateGUI(new Project());
+            _currentProjectPath = null;
+            SetTitle();
+        }
+
+        private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_currentProjectPath == null)
             {
-                var snapshotNames = new List<string>();
+                var d = new SaveFileDialog();
+                SetFileDialogProperties(d);
 
-                foreach (var fileName in openFileDialog1.FileNames)
+                var result = d.ShowDialog(this);
+
+                if (result == DialogResult.OK)
                 {
-                    var snapshotName = TxtbxSnapshotLocation.Text + 
-                                       @"\" +
-                                       Path.GetFileNameWithoutExtension(fileName) +
-                                       "-" +
-                                       TxtbxVersion.Text +
-                                       "-snapshot.xml";
-                    snapshotNames.Add(snapshotName);
-
-                    var strCmdLine = @"snapshot " + 
-                                     fileName + 
-                                     " -v=" + 
-                                     TxtbxVersion.Text +
-                                     @" -o=" +
-                                     snapshotName;
-
-                    if (!string.IsNullOrEmpty(TxtbxTypesToExclude.Text))
-                    {
-                        strCmdLine = strCmdLine + " -x=" + TxtbxTypesToExclude.Text;
-                    }
-
-                    System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, strCmdLine);
+                    _currentProjectPath = d.FileName;
                 }
+            }
 
-                TxtbxSnapshotsCreated.Text = string.Join("\r\n", snapshotNames.Select(Path.GetFileName).ToArray());
-                TxtbxVersion.Text = string.Empty;
-                LblSnapshotError.Visible = false;
+            if (_currentProjectPath != null)
+            {
+                SaveProject(_currentProjectPath);
+            }
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.Default.ClearRecentProjects();
+            UpdateRecentProjects();
+        }
+
+        private static void SetFileDialogProperties(FileDialog dialog)
+        {
+            dialog.Filter = PROJECT_FILTER;
+
+            var recentProjects = Settings.Default.RecentProjects;
+
+            if (recentProjects != null && recentProjects.Count > 0)
+            {
+                dialog.InitialDirectory = Path.GetDirectoryName(recentProjects[0]);
+            }
+        }
+
+        private void LoadProject(string path)
+        {
+            var project = new Project();
+            project.ReadXml(path);
+
+            UpdateGUI(project);
+
+            Settings.Default.AddRecentProject(path);
+
+            UpdateRecentProjects();
+
+            _currentProjectPath = path;
+
+            SetTitle();
+        }
+
+        private void UpdateGUI(Project project)
+        {
+            foreach (var assemblyToSnapshot in project.AssembliesToSnapshot)
+            {
+                var item = new ListViewItem(new []
+                                            {
+                                                assemblyToSnapshot.Path,
+                                                assemblyToSnapshot.Version
+                                            });
+
+                assembliesListView.Items.Add(item);
+            }
+
+            txtTypesToExclude.Text = project.TypesToExcludePattern;
+            txtExcelOutput.Text = project.ExcelOutputPath;
+        }
+
+        private void SaveProject(string path)
+        {
+            var project = new Project
+            {
+                NChangesToolPath = GetNChangesToolPath(),
+                TypesToExcludePattern = txtTypesToExclude.Text,
+                ExcelOutputPath = txtExcelOutput.Text,
+            };
+
+            foreach (var assemblyToSnapshot in assembliesListView
+                                                    .Items
+                                                    .Cast<ListViewItem>()
+                                                    .Select(i => new AssemblyToSnapshot
+                                                    {
+                                                        Path = i.SubItems[0].Text,
+                                                        Version = i.SubItems[1].Text
+                                                    }))
+            {
+                project.AssembliesToSnapshot.Add(assemblyToSnapshot);
+            }
+
+            project.WriteXml(path);
+
+            Settings.Default.AddRecentProject(path);
+
+            UpdateRecentProjects();
+
+            SetTitle();
+        }
+
+        private void UpdateRecentProjects()
+        {
+            var projects = Settings.Default.RecentProjects;
+
+            recentProjectsToolStripMenuItem.DropDownItems.Clear();
+
+            if (projects != null)
+            {
+                foreach (var project in projects)
+                {
+                    var item = new ToolStripMenuItem
+                               {
+                                   Text = project
+                               };
+
+                    item.Click += (s, e) => LoadProject(item.Text);
+
+                    recentProjectsToolStripMenuItem.DropDownItems.Add(item);
+                }
             }
             else
             {
-                LblSnapshotError.Text = "An assembly version is required.";
-                LblSnapshotError.Visible = true;
+                recentProjectsToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem
+                                                                  {
+                                                                      Text = "(empty)",
+                                                                      Enabled = false
+                                                                  });
+            }
+
+            recentProjectsToolStripMenuItem.DropDownItems.Add(recentProjectsToolStripSeparator);
+            recentProjectsToolStripMenuItem.DropDownItems.Add(clearToolStripMenuItem);
+        }
+
+        private void SetTitle()
+        {
+            if (_currentProjectPath == null)
+            {
+                Text = TITLE_SUFFIX;
+            }
+            else
+            {
+                Text = string.Format("{0}{1}{2}", Path.GetFileNameWithoutExtension(_currentProjectPath), TITLE_SEPARATOR, TITLE_SUFFIX);
             }
         }
 
-        private void BtnSelectSnapshots_Click(object sender, EventArgs e)
+        private string GetNChangesToolPath()
         {
-            openFileDialog1.Filter = @"XML (*-snapshot.xml)|*-snapshot.xml";
-            openFileDialog1.Multiselect = true;
-            openFileDialog1.InitialDirectory = TxtbxSnapshotLocation.Text;
+            string dir = Path.GetDirectoryName(Application.ExecutablePath);
+            return Path.Combine(dir, NCHANGES_TOOL_EXE);
+        }
+
+        private void addAssemblyButton_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = ASSEMBLY_FILTER;
 
             var result = openFileDialog1.ShowDialog();
 
             if (result == DialogResult.OK)
             {
-                TxtbxSelectedSnapshots.Text = string.Join(" ", openFileDialog1.SafeFileNames);
-                BtnCreateReports.Enabled = true;
+                assembliesListView.Items.Add(new ListViewItem(new[]
+                                                              {
+                                                                  openFileDialog1.FileName,
+                                                                  ""
+                                                              }));
             }
         }
 
-        private void BtnExportToExcel_Click(object sender, EventArgs e)
+        private void editPathButton_Click(object sender, EventArgs e)
         {
-            try
-            {
-                var cmdLineParams = @"excel " + string.Join(" ", openFileDialog1.FileNames);
-
-                System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
-
-                TxtbxExcelNames.Text = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(openFileDialog1.SafeFileNames.First())) + ".xls";
-
-            }
-            catch (Exception ex)
-            {
-                LblReportError.Text = ex.Message;
-                LblReportError.Visible = true;
-            }
+            EditAssemblySubItem(0, "Assembly Path");
         }
-        
-        private void BtnOpenExcelReports_Click(object sender, EventArgs e)
+
+        private void editVersionButton_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = @"Excel (*.xls)|*.xls";
-            openFileDialog1.Multiselect = true;
+            EditAssemblySubItem(1, "Assembly Version");
+        }
 
-            var result = openFileDialog1.ShowDialog();
-
-            if (result == DialogResult.OK)
+        private void EditAssemblySubItem(int subItemIndex, string prompt)
+        {
+            if (assembliesListView.SelectedItems.Count == 0)
             {
-                foreach (var name in openFileDialog1.SafeFileNames)
+                return;
+            }
+
+            var first = assembliesListView.SelectedItems[0];
+
+            string value = first.SubItems[subItemIndex].Text;
+
+            if (InputBox.Show(TITLE_SUFFIX, prompt, ref value) == DialogResult.OK)
+            {
+                foreach (ListViewItem item in assembliesListView.SelectedItems)
                 {
-                    System.Diagnostics.Process.Start(name);
+                    item.SubItems[subItemIndex].Text = value;
                 }
             }
         }
 
-        private void BtnSaveSnapshotLocation_Click(object sender, EventArgs e)
+        private void removeAssemblyButton_Click(object sender, EventArgs e)
         {
-            var result = folderBrowserDialog1.ShowDialog();
-
-            if (result == DialogResult.OK)
+            if (assembliesListView.SelectedItems.Count == 0)
             {
-                TxtbxSnapshotLocation.Text = folderBrowserDialog1.SelectedPath;
+                return;
+            }
+
+            var itemsToRemove = new List<ListViewItem>(assembliesListView.SelectedItems.Cast<ListViewItem>());
+
+            foreach (var item in itemsToRemove)
+            {
+                assembliesListView.Items.Remove(item);
             }
         }
 
-        private void BtnCreateReports_Click(object sender, EventArgs e)
+        private void btnCreateSnapshots_Click(object sender, EventArgs e)
         {
-            try
-            {
-                var cmdLineParams = @"report " + string.Join(" ", openFileDialog1.FileNames);
+            RunTask(Project.SnapshotTaskName);
+        }
 
-                System.Diagnostics.Process.Start(N_CHANGES_EXE_PATH, cmdLineParams);
+        private void btnCreateReports_Click(object sender, EventArgs e)
+        {
+            RunTask(Project.ReportTaskName);
+        }
 
-                TxtbxReportNamesCreated.Text = string.Join("\r\n", openFileDialog1.SafeFileNames.Select(i => i.Replace("snapshot", "report")));
-                LblReportError.Visible = false;
-            }
-            catch (Exception ex)
+        private void btnExportToExcel_Click(object sender, EventArgs e)
+        {
+            RunTask(Project.ExcelTaskName);
+        }
+
+        private void RunTask(string taskName)
+        {
+            if (VerifyProject())
             {
-                LblReportError.Text = ex.Message;
-                LblReportError.Visible = true;
+                Project.Run(_currentProjectPath, taskName);
             }
         }
 
-        private void BtnSelectReports_Click(object sender, EventArgs e)
+        private bool VerifyProject()
         {
-            openFileDialog1.Filter = @"XML (*-report.xml)|*-report.xml";
-            openFileDialog1.Multiselect = true;
-            openFileDialog1.InitialDirectory = TxtbxSnapshotLocation.Text;
-
-            var result = openFileDialog1.ShowDialog();
-
-            if (result == DialogResult.OK)
+            if (_currentProjectPath == null)
             {
-                TxtbxReportNamesSelected.Text = string.Join(" ", openFileDialog1.SafeFileNames);
+                MessageBox.Show(
+                    "You need to open or save a project first...",
+                    "Sorry!",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
 
-                BtnExportToExcel.Enabled = true;
+                return false;
+            }
+
+            return true;
+        }
+
+        private void btnViewExcelOutput_Click(object sender, EventArgs e)
+        {
+            if (VerifyProject())
+            {
+                var path = Path.Combine(Path.GetDirectoryName(_currentProjectPath), txtExcelOutput.Text);
+                Process.Start(path);
             }
         }
     }
