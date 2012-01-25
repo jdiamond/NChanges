@@ -9,32 +9,40 @@ namespace NChanges.Tool
     {
         public static void Main(string[] args)
         {
-            if (args.Length == 0)
+            try
             {
-                ShowHelp();
-                Environment.Exit(-1);
-            }
+                if (args.Length == 0)
+                {
+                    ShowHelp();
+                    Environment.Exit(-1);
+                }
 
-            var command = args.First();
-            args = args.Skip(1).ToArray();
+                var command = args.First();
+                args = args.Skip(1).ToArray();
 
-            if (command == "snapshot")
-            {
-                new SnapshotCommand().Run(args);
+                if (command == "snapshot")
+                {
+                    new SnapshotCommand().Run(args);
+                }
+                else if (command == "report")
+                {
+                    new ReportCommand().Run(args);
+                }
+                else if (command == "excel")
+                {
+                    new ExcelCommand().Run(args);
+                }
+                else
+                {
+                    Console.Error.WriteLine("Unknown command: {0}", command);
+                    Console.Error.WriteLine();
+                    ShowHelp();
+                    Environment.Exit(-1);
+                }
             }
-            else if (command == "report")
+            catch (Exception e)
             {
-                new ReportCommand().Run(args);
-            }
-            else if (command == "excel")
-            {
-                new ExcelCommand().Run(args);
-            }
-            else
-            {
-                Console.Error.WriteLine("Unknown command: {0}", command);
-                Console.Error.WriteLine();
-                ShowHelp();
+                Console.Error.WriteLine("Error: {0}", e.Message);
                 Environment.Exit(-1);
             }
         }

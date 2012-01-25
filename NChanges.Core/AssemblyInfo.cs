@@ -84,5 +84,26 @@ namespace NChanges.Core
                 }
             }
         }
+
+        public bool HasChanges()
+        {
+            foreach (var type in Types)
+            {
+                if (type.Changes.Count > 0)
+                {
+                    return true;
+                }
+
+                foreach (var member in type.Members)
+                {
+                    if (member.Changes.Count > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Mono.Options;
 using NChanges.Core;
@@ -15,6 +16,7 @@ namespace NChanges.Tool
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
         private string _columns = "version,change,namespace,type,member,params,return";
+        private string _name = null;
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
 
@@ -82,7 +84,8 @@ namespace NChanges.Tool
             _optionSet = new OptionSet
                          {
                              { "o|output=", "output file", v => _output = v },
-                             { "c|columns=", "columns", v => _columns = v }
+                             { "c|columns=", "columns", v => _columns = v },
+                             { "n|name=", "worksheet name regex pattern", v => _name = v }
                          };
         }
 
@@ -102,11 +105,21 @@ namespace NChanges.Tool
                     fileName = PathHelper.FormatPath(_output, report);
                 }
 
-                var worksheet = workbook.CreateSheet(report.Name);
+                if (report.HasChanges())
+                {
+                    var name = report.Name;
 
-                AddHeaders(worksheet);
-                SetColumnSize(worksheet);
-                AddData(report, worksheet);
+                    if (!string.IsNullOrEmpty(_name))
+                    {
+                        name = Regex.Match(name, _name).Groups[1].Value;
+                    }
+
+                    var worksheet = workbook.CreateSheet(name);
+
+                    AddHeaders(worksheet);
+                    SetColumnSize(worksheet);
+                    AddData(report, worksheet);
+                }
             }
 
             workbook.Write(new FileStream(fileName, FileMode.Create));
@@ -134,7 +147,7 @@ namespace NChanges.Tool
 
         private void AddData(AssemblyInfo report, ISheet worksheet)
         {
-            var rowIndex = 2;
+            var data = new List<List<string>>();
 
             foreach (var typeInfo in report.Types)
             {
@@ -142,13 +155,27 @@ namespace NChanges.Tool
                 {
                     foreach (var change in memberInfo.Changes)
                     {
-                        var row = worksheet.CreateRow(rowIndex);
-
-                        ForEachColumn((i, f) => row.CreateCell(i).SetCellValue(f.Getter(typeInfo, memberInfo, change)));
-
-                        rowIndex++;
+                        var row = new List<string>();
+                        data.Add(row);
+                        ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, memberInfo, change)));
                     }
                 }
+            }
+
+            data = data.OrderByDescending(row => row[0]).ToList();
+
+            var rowIndex = 2;
+
+            foreach (var dataRow in data)
+            {
+                var row = worksheet.CreateRow(rowIndex);
+
+                for (var i = 0; i < dataRow.Count; i++)
+                {
+                    row.CreateCell(i).SetCellValue(dataRow[i]);
+                }
+
+                rowIndex++;
             }
         }
 

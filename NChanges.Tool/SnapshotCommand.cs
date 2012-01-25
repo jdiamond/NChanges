@@ -39,21 +39,20 @@ namespace NChanges.Tool
                 var assemblyInfo = new AssemblyInfo();
                 assemblyInfo.ReadAssembly(assembly, _excludePattern);
 
-                Console.WriteLine("{0} contains {1} types...", assemblyInfo.Name, assemblyInfo.Types.Count);
-
                 if (_version != null)
                 {
                     assemblyInfo.Version = _version;
                 }
 
-                var fileName = PathHelper.FormatPath(_output, assemblyInfo);
+                var outputPath = PathHelper.FormatPath(_output, assemblyInfo);
 
-                using (var xmlWriter = new XmlTextWriter(fileName, Encoding.UTF8)
+                PathHelper.EnsureFolderExists(outputPath);
+
+                using (var xmlWriter = new XmlTextWriter(outputPath, Encoding.UTF8)
                                        {
                                            Formatting = Formatting.Indented
                                        })
                 {
-                    Console.WriteLine("Writing snapshot to {0}...", fileName);
                     assemblyInfo.WriteXml(xmlWriter);
                 }
             }

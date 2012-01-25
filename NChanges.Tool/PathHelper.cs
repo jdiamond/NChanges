@@ -32,5 +32,15 @@ namespace NChanges.Tool
             return output.Replace("%name%", assembly.Name)
                          .Replace("%version%", assembly.Version);
         }
+
+        public static void EnsureFolderExists(string outputPath)
+        {
+            var folderName = Path.GetDirectoryName(outputPath);
+
+            if (!string.IsNullOrEmpty(folderName) && !Directory.Exists(folderName))
+            {
+                Directory.CreateDirectory(folderName);
+            }
+        }
     }
 }

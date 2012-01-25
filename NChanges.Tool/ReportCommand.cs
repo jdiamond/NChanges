@@ -57,9 +57,11 @@ namespace NChanges.Tool
 
                 var report = reporter.GenerateReport();
 
-                var fileName = PathHelper.FormatPath(_output, report);
+                var outputPath = PathHelper.FormatPath(_output, report);
 
-                using (var xmlWriter = new XmlTextWriter(fileName, Encoding.UTF8)
+                PathHelper.EnsureFolderExists(outputPath);
+
+                using (var xmlWriter = new XmlTextWriter(outputPath, Encoding.UTF8)
                                        {
                                            Formatting = Formatting.Indented
                                        })
@@ -72,7 +74,7 @@ namespace NChanges.Tool
                     var transform = new XslCompiledTransform();
                     transform.Load(_transform);
 
-                    var document = new XPathDocument(fileName);
+                    var document = new XPathDocument(outputPath);
 
                     var transformOutput = PathHelper.FormatPath(_transformOutput, report);
 
