@@ -17,6 +17,7 @@ namespace NChanges.GUI
         private const string ASSEMBLY_FILTER = "Assembly Files (*.dll)|*.dll";
 
         private string _currentProjectPath;
+        private bool _dirty = false;
 
         public ApiChangesForm()
         {
@@ -97,6 +98,8 @@ namespace NChanges.GUI
             _currentProjectPath = path;
 
             SetTitle();
+
+            _dirty = false;
         }
 
         private void UpdateGUI(Project project)
@@ -144,6 +147,8 @@ namespace NChanges.GUI
             UpdateRecentProjects();
 
             SetTitle();
+
+            _dirty = false;
         }
 
         private void UpdateRecentProjects()
@@ -210,6 +215,8 @@ namespace NChanges.GUI
                                                                   openFileDialog1.FileName,
                                                                   ""
                                                               }));
+
+                _dirty = true;
             }
         }
 
@@ -240,6 +247,8 @@ namespace NChanges.GUI
                 {
                     item.SubItems[subItemIndex].Text = value;
                 }
+
+                _dirty = true;
             }
         }
 
@@ -255,6 +264,8 @@ namespace NChanges.GUI
             foreach (var item in itemsToRemove)
             {
                 assembliesListView.Items.Remove(item);
+
+                _dirty = true;
             }
         }
 
@@ -294,6 +305,11 @@ namespace NChanges.GUI
                 return false;
             }
 
+            if (_dirty)
+            {
+                SaveProject(_currentProjectPath);
+            }
+
             return true;
         }
 
@@ -304,6 +320,16 @@ namespace NChanges.GUI
                 var path = Path.Combine(Path.GetDirectoryName(_currentProjectPath), txtExcelOutput.Text);
                 Process.Start(path);
             }
+        }
+
+        private void txtTypesToExclude_TextChanged(object sender, EventArgs e)
+        {
+            _dirty = true;
+        }
+
+        private void txtExcelOutput_TextChanged(object sender, EventArgs e)
+        {
+            _dirty = true;
         }
     }
 }

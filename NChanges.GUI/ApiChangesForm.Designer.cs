@@ -144,6 +144,7 @@
             this.txtExcelOutput.Name = "txtExcelOutput";
             this.txtExcelOutput.Size = new System.Drawing.Size(427, 20);
             this.txtExcelOutput.TabIndex = 50;
+            this.txtExcelOutput.TextChanged += new System.EventHandler(this.txtExcelOutput_TextChanged);
             // 
             // btnCreateReports
             // 
@@ -243,6 +244,7 @@
             this.txtTypesToExclude.Name = "txtTypesToExclude";
             this.txtTypesToExclude.Size = new System.Drawing.Size(478, 20);
             this.txtTypesToExclude.TabIndex = 41;
+            this.txtTypesToExclude.TextChanged += new System.EventHandler(this.txtTypesToExclude_TextChanged);
             // 
             // label4
             // 
