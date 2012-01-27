@@ -37,13 +37,13 @@ namespace NChanges.Core.Tests
     </Assembly>
   </ItemGroup>
   <Target Name=""Snapshot"">
-    <Exec Command=""$(NChangesTool) snapshot %(Assembly.Identity) -v=%(Version) -x=$(TypesToExclude)"" />
+    <Exec Command=""$(NChangesTool) snapshot &quot;%(Assembly.Identity)&quot; -v=&quot;%(Version)&quot; -x=&quot;$(TypesToExclude)&quot;"" />
   </Target>
   <Target Name=""Report"">
     <Exec Command=""$(NChangesTool) report *-snapshot.xml"" />
   </Target>
   <Target Name=""Excel"">
-    <Exec Command=""$(NChangesTool) excel *-report.xml -o=$(ExcelOutput)"" />
+    <Exec Command=""$(NChangesTool) excel *-report.xml -o=&quot;$(ExcelOutput)&quot;"" />
   </Target>
   <Target Name=""Clean"">
     <Delete Files=""%(Assembly.Filename)-%(Version)-snapshot.xml"" />
