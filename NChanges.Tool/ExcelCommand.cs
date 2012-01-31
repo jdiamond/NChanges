@@ -26,43 +26,55 @@ namespace NChanges.Tool
                                     {
                                         Header = "Version",
                                         Width = 3000,
-                                        Getter = (t, m, mc) => mc.Version
+                                        Getter = (t, tc, m, mc) => 
+                                            tc != null 
+                                                ? tc.Version
+                                                : mc.Version
                                     };
             _columnMap["change"] = new FieldInfo
                                     {
                                         Header = "Change",
                                         Width = 5000,
-                                        Getter = (t, m, mc) => mc.Kind.ToString()
+                                        Getter = (t, tc, m, mc) =>
+                                            tc != null
+                                                ? tc.Kind.ToString()
+                                                : mc.Kind.ToString()
                                     };
             _columnMap["namespace"] = new FieldInfo
                                     {
                                         Header = "Namespace",
                                         Width = 15000,
-                                        Getter = (t, m, mc) => t.Namespace
+                                        Getter = (t, tc, m, mc) => t.Namespace
                                     };
             _columnMap["type"] = new FieldInfo
                                     {
                                         Header = "Type",
                                         Width = 12000,
-                                        Getter = (t, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
+                                        Getter = (t, tc, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
                                     };
             _columnMap["member"] = new FieldInfo
                                     {
                                         Header = "Member",
                                         Width = 12000,
-                                        Getter = (t, m, mc) => m.Name
+                                        Getter = (t, tc, m, mc) =>
+                                            m != null
+                                                ? m.Name
+                                                : ""
                                     };
             _columnMap["params"] = new FieldInfo
                                     {
                                         Header = "Parameters",
                                         Width = 10000,
-                                        Getter = (t, m, mc) => string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray())
+                                        Getter = (t, tc, m, mc) =>
+                                            m != null
+                                                ? string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray())
+                                                : ""
                                     };
             _columnMap["return"] = new FieldInfo
                                     {
                                         Header = "Return Type",
                                         Width = 5000,
-                                        Getter = (t, m, mc) => "" // TODO: Uh...
+                                        Getter = (t, tc, m, mc) => "" // TODO: Uh...
                                     };
 
             // What about property types?
@@ -76,7 +88,7 @@ namespace NChanges.Tool
         {
             public string Header { get; set; }
             public int Width { get; set; }
-            public Func<TypeInfo, MemberInfo, MemberChangeInfo, string> Getter { get; set; }
+            public Func<TypeInfo, TypeChangeInfo, MemberInfo, MemberChangeInfo, string> Getter { get; set; }
         }
 
         public ExcelCommand()
@@ -111,7 +123,16 @@ namespace NChanges.Tool
 
                     if (!string.IsNullOrEmpty(_name))
                     {
-                        name = Regex.Match(name, _name).Groups[1].Value;
+                        var match = Regex.Match(name, _name);
+
+                        if (match.Success)
+                        {
+                            name = match.Groups
+                                        .Cast<Group>()
+                                        .Skip(1)
+                                        .First(g => !string.IsNullOrEmpty(g.Value))
+                                        .Value;
+                        }
                     }
 
                     var worksheet = workbook.CreateSheet(name);
@@ -151,13 +172,20 @@ namespace NChanges.Tool
 
             foreach (var typeInfo in report.Types)
             {
+                foreach (var change in typeInfo.Changes)
+                {
+                    var row = new List<string>();
+                    data.Add(row);
+                    ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, change, null, null)));
+                }
+
                 foreach (var memberInfo in typeInfo.Members)
                 {
                     foreach (var change in memberInfo.Changes)
                     {
                         var row = new List<string>();
                         data.Add(row);
-                        ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, memberInfo, change)));
+                        ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, null, memberInfo, change)));
                     }
                 }
             }
