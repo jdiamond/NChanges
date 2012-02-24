@@ -17,6 +17,8 @@ namespace NChanges.Tool
         private string _output = "%name%-%version%-report.xls";
         private string _columns = "version,change,namespace,type,member,params,return";
         private string _name = null;
+        private bool _multipleSheets = false;
+        private int _rowIndex = 2;
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
 
@@ -97,6 +99,7 @@ namespace NChanges.Tool
                          {
                              { "o|output=", "output file", v => _output = v },
                              { "c|columns=", "columns", v => _columns = v },
+                             { "m|multiple-sheets", "create a new worksheet for each report", v => _multipleSheets = true },
                              { "n|name=", "worksheet name regex pattern", v => _name = v }
                          };
         }
@@ -107,6 +110,8 @@ namespace NChanges.Tool
 
             var workbook = new HSSFWorkbook();
             string fileName = null;
+
+            ISheet worksheet = null;
 
             foreach (var path in PathHelper.ExpandPaths(extras))
             {
@@ -135,10 +140,13 @@ namespace NChanges.Tool
                         }
                     }
 
-                    var worksheet = workbook.CreateSheet(name);
+                    if (_multipleSheets || worksheet == null)
+                    {
+                        worksheet = workbook.CreateSheet(_multipleSheets ? name : "Changes");
+                        AddHeaders(worksheet);
+                        SetColumnSize(worksheet);
+                    }
 
-                    AddHeaders(worksheet);
-                    SetColumnSize(worksheet);
                     AddData(report, worksheet);
                 }
             }
@@ -192,18 +200,21 @@ namespace NChanges.Tool
 
             data = data.OrderByDescending(row => row[0]).ToList();
 
-            var rowIndex = 2;
+            if (_multipleSheets)
+            {
+                _rowIndex = 2;
+            }
 
             foreach (var dataRow in data)
             {
-                var row = worksheet.CreateRow(rowIndex);
+                var row = worksheet.CreateRow(_rowIndex);
 
                 for (var i = 0; i < dataRow.Count; i++)
                 {
                     row.CreateCell(i).SetCellValue(dataRow[i]);
                 }
 
-                rowIndex++;
+                _rowIndex++;
             }
         }
 
