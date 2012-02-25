@@ -590,5 +590,115 @@ namespace NChanges.Core.Tests
             Assert.AreEqual(MemberChangeKind.ObsoletedMember, report.Types.Single().Members.Get("MyMethod").Changes.Single().Kind);
             Assert.AreEqual("2", report.Types.Single().Members.Get("MyMethod").Changes.Single().Version);
         }
+
+        [Test]
+        public void It_detects_when_a_new_overload_is_added_without_crashing()
+        {
+            var reporter = new Reporter
+                           {
+                               Assemblies =
+                                   {
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "1",
+                                           Types =
+                                               {
+                                                   new TypeInfo
+                                                   {
+                                                       Name = "MyType",
+                                                       Members =
+                                                           {
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Parameters =
+                                                                       {
+                                                                           new ParameterInfo
+                                                                           {
+                                                                               Name = "myParam",
+                                                                               Type = "System.Int32"
+                                                                           }
+                                                                       }
+                                                               },
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Parameters =
+                                                                       {
+                                                                           new ParameterInfo
+                                                                           {
+                                                                               Name = "myParam",
+                                                                               Type = "System.String"
+                                                                           }
+                                                                       }
+                                                               }
+                                                           }
+                                                   }
+                                               }
+                                       },
+                                       new AssemblyInfo
+                                       {
+                                           Name = "MyAssembly",
+                                           Version = "2",
+                                           Types =
+                                               {
+                                                   new TypeInfo
+                                                   {
+                                                       Name = "MyType",
+                                                       Members =
+                                                           {
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Parameters =
+                                                                       {
+                                                                           new ParameterInfo
+                                                                           {
+                                                                               Name = "myParam",
+                                                                               Type = "System.Int32"
+                                                                           }
+                                                                       }
+                                                               },
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Parameters =
+                                                                       {
+                                                                           new ParameterInfo
+                                                                           {
+                                                                               Name = "myParam",
+                                                                               Type = "System.String"
+                                                                           }
+                                                                       }
+                                                               },
+                                                               new MemberInfo
+                                                               {
+                                                                   Name = "MyMethod",
+                                                                   Kind = MemberKind.Method,
+                                                                   Parameters =
+                                                                       {
+                                                                           new ParameterInfo
+                                                                           {
+                                                                               Name = "myParam",
+                                                                               Type = "System.Boolean"
+                                                                           }
+                                                                       }
+                                                               }
+                                                           }
+                                                   }
+                                               }
+                                       }
+                                   }
+                           };
+
+            var report = reporter.GenerateReport();
+
+            Assert.AreEqual(MemberChangeKind.AddedMember, report.Types.Single().Members.ElementAt(2).Changes.Single().Kind);
+        }
     }
 }

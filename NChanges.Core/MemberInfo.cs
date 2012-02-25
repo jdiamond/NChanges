@@ -68,7 +68,7 @@ namespace NChanges.Core
                 Parameters.Add(new ParameterInfo
                                {
                                    Name = pi.Name,
-                                   Type = CleanUpParameterType(pi.ParameterType.FullName)
+                                   Type = CleanUpParameterType(pi.ParameterType.FullName ?? pi.ParameterType.Name)
                                });
             }
         }

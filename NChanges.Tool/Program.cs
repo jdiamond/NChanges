@@ -43,6 +43,7 @@ namespace NChanges.Tool
             catch (Exception e)
             {
                 Console.Error.WriteLine("Error: {0}", e.Message);
+                Console.Error.WriteLine("Stack Trace: {0}", e.StackTrace);
                 Environment.Exit(-1);
             }
         }

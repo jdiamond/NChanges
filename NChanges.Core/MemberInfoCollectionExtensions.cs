@@ -20,6 +20,16 @@ namespace NChanges.Core
             return source.Get(memberInfo.Name);
         }
 
+        public static MemberInfo TryGet(this ICollection<MemberInfo> source, MemberInfo memberInfo)
+        {
+            if (source.IsOverloaded(memberInfo.Name))
+            {
+                return source.SingleOrDefault(m => m.Name == memberInfo.Name && MatchParameter(m, memberInfo));
+            }
+
+            return source.Get(memberInfo.Name);
+        }
+
         private static bool MatchParameter(MemberInfo current, MemberInfo previous)
         {
             if (current.Parameters.Count() != previous.Parameters.Count())

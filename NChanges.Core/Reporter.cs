@@ -115,7 +115,7 @@ namespace NChanges.Core
                         foreach (var member in thisType.Members)
                         {
                             // Is this a new member?
-                            if (!previousType.Members.Contains(member.Name))
+                            if (!previousType.Members.Contains(member.Name) || previousType.Members.TryGet(member) == null)
                             {
                                 var newMember = member.Clone();
 
