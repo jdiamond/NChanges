@@ -156,21 +156,42 @@ namespace NChanges.Tool
                     {
                         worksheet = workbook.CreateSheet(_multipleSheets ? name : "Changes");
                         AddHeaders(worksheet);
-                        SetColumnSize(worksheet);
                     }
 
                     AddData(report, worksheet);
+
+                    if (_multipleSheets)
+                    {
+                        FinalizeWorkSheet(worksheet);
+                    }
                 }
             }
 
-            var hssfSheet = worksheet as HSSFSheet;
-
-            if (hssfSheet != null)
+            if (!_multipleSheets)
             {
-                hssfSheet.SetAutoFilter(new CellRangeAddress(0, _rowIndex - 1, 0, _splitColumns.Length - 1));
+                FinalizeWorkSheet(worksheet);
             }
 
             workbook.Write(new FileStream(fileName, FileMode.Create));
+        }
+
+        private void FinalizeWorkSheet(ISheet worksheet)
+        {
+            if (worksheet != null)
+            {
+                var hssfSheet = worksheet as HSSFSheet;
+
+                if (hssfSheet != null)
+                {
+                    hssfSheet.SetAutoFilter(new CellRangeAddress(0, _rowIndex - 1, 0, _splitColumns.Length - 1));
+                }
+
+                ForEachColumn((i, f) =>
+                    {
+                        worksheet.AutoSizeColumn(i);
+                        worksheet.SetColumnWidth(i, worksheet.GetColumnWidth(i) + 512);
+                    });
+            }
         }
 
         private AssemblyInfo LoadReport(string path)
@@ -186,11 +207,6 @@ namespace NChanges.Tool
             var row = worksheet.CreateRow(0);
 
             ForEachColumn((i, f) => row.CreateCell(i).SetCellValue(f.Header));
-        }
-
-        private void SetColumnSize(ISheet worksheet)
-        {
-            ForEachColumn((i, f) => worksheet.SetColumnWidth(i, f.Width));
         }
 
         private void AddData(AssemblyInfo report, ISheet worksheet)
