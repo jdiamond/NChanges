@@ -8,6 +8,7 @@ using Mono.Options;
 using NChanges.Core;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 
 namespace NChanges.Tool
 {
@@ -15,21 +16,28 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
-        private string _columns = "version,change,namespace,type,member,params,return";
-        private string _name = null;
-        private bool _multipleSheets = false;
+        private string _columns = "assembly,version,change,namespace,type,member,params,return";
+        private string[] _splitColumns;
+        private string _name;
+        private bool _multipleSheets;
         private int _rowIndex = 2;
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
 
         static ExcelCommand()
         {
+            _columnMap["assembly"] = new FieldInfo
+                                    {
+                                        Header = "Assembly",
+                                        Width = 3000,
+                                        Getter = (a, t, tc, m, mc) => a.Name
+                                    };
             _columnMap["version"] = new FieldInfo
                                     {
                                         Header = "Version",
                                         Width = 3000,
-                                        Getter = (t, tc, m, mc) => 
-                                            tc != null 
+                                        Getter = (a, t, tc, m, mc) =>
+                                            tc != null
                                                 ? tc.Version
                                                 : mc.Version
                                     };
@@ -37,7 +45,7 @@ namespace NChanges.Tool
                                     {
                                         Header = "Change",
                                         Width = 5000,
-                                        Getter = (t, tc, m, mc) =>
+                                        Getter = (a, t, tc, m, mc) =>
                                             tc != null
                                                 ? tc.Kind.ToString()
                                                 : mc.Kind.ToString()
@@ -46,19 +54,19 @@ namespace NChanges.Tool
                                     {
                                         Header = "Namespace",
                                         Width = 15000,
-                                        Getter = (t, tc, m, mc) => t.Namespace
+                                        Getter = (a, t, tc, m, mc) => t.Namespace
                                     };
             _columnMap["type"] = new FieldInfo
                                     {
                                         Header = "Type",
                                         Width = 12000,
-                                        Getter = (t, tc, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
+                                        Getter = (a, t, tc, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
                                     };
             _columnMap["member"] = new FieldInfo
                                     {
                                         Header = "Member",
                                         Width = 12000,
-                                        Getter = (t, tc, m, mc) =>
+                                        Getter = (a, t, tc, m, mc) =>
                                             m != null
                                                 ? m.Name
                                                 : ""
@@ -67,7 +75,7 @@ namespace NChanges.Tool
                                     {
                                         Header = "Parameters",
                                         Width = 10000,
-                                        Getter = (t, tc, m, mc) =>
+                                        Getter = (a, t, tc, m, mc) =>
                                             m != null
                                                 ? string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray())
                                                 : ""
@@ -76,7 +84,7 @@ namespace NChanges.Tool
                                     {
                                         Header = "Return Type",
                                         Width = 5000,
-                                        Getter = (t, tc, m, mc) => "" // TODO: Uh...
+                                        Getter = (a, t, tc, m, mc) => "" // TODO: Uh...
                                     };
 
             // What about property types?
@@ -90,8 +98,10 @@ namespace NChanges.Tool
         {
             public string Header { get; set; }
             public int Width { get; set; }
-            public Func<TypeInfo, TypeChangeInfo, MemberInfo, MemberChangeInfo, string> Getter { get; set; }
+            public Getter Getter { get; set; }
         }
+
+        private delegate string Getter(AssemblyInfo a, TypeInfo t, TypeChangeInfo tc, MemberInfo m, MemberChangeInfo mi);
 
         public ExcelCommand()
         {
@@ -107,6 +117,8 @@ namespace NChanges.Tool
         public void Run(IEnumerable<string> args)
         {
             var extras = _optionSet.Parse(args);
+
+            _splitColumns = _columns.Split(',');
 
             var workbook = new HSSFWorkbook();
             string fileName = null;
@@ -151,6 +163,13 @@ namespace NChanges.Tool
                 }
             }
 
+            var hssfSheet = worksheet as HSSFSheet;
+
+            if (hssfSheet != null)
+            {
+                hssfSheet.SetAutoFilter(new CellRangeAddress(0, _rowIndex - 1, 0, _splitColumns.Length - 1));
+            }
+
             workbook.Write(new FileStream(fileName, FileMode.Create));
         }
 
@@ -184,7 +203,7 @@ namespace NChanges.Tool
                 {
                     var row = new List<string>();
                     data.Add(row);
-                    ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, change, null, null)));
+                    ForEachColumn((i, f) => row.Add(f.Getter(report, typeInfo, change, null, null)));
                 }
 
                 foreach (var memberInfo in typeInfo.Members)
@@ -193,7 +212,7 @@ namespace NChanges.Tool
                     {
                         var row = new List<string>();
                         data.Add(row);
-                        ForEachColumn((i, f) => row.Add(f.Getter(typeInfo, null, memberInfo, change)));
+                        ForEachColumn((i, f) => row.Add(f.Getter(report, typeInfo, null, memberInfo, change)));
                     }
                 }
             }
@@ -222,7 +241,7 @@ namespace NChanges.Tool
         {
             int i = 0;
 
-            foreach (var col in _columns.Split(','))
+            foreach (var col in _splitColumns)
             {
                 worker(i++, _columnMap[col.Trim()]);
             }
