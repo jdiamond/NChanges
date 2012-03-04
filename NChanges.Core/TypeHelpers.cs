@@ -1,9 +1,25 @@
-﻿namespace NChanges.Core
+﻿using System.Text.RegularExpressions;
+
+namespace NChanges.Core
 {
     public static class TypeHelpers
     {
+        private static readonly Regex NullableRegex = new Regex(@"^System.Nullable`1\[\[([^,\]]+)");
+
         public static string NormalizeTypeName(string typeName)
         {
+            var m = NullableRegex.Match(typeName);
+
+            if (m.Success)
+            {
+                return NormalizeTypeName(m.Groups[1].Value) + "?";
+            }
+
+            if (typeName.EndsWith("[]"))
+            {
+                return NormalizeTypeName(typeName.Substring(0, typeName.Length - 2)) + "[]";
+            }
+
             switch (typeName)
             {
                 case "System.Boolean":
