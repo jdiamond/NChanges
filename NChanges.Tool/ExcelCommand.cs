@@ -20,7 +20,7 @@ namespace NChanges.Tool
         private string[] _splitColumns;
         private string _name;
         private bool _multipleSheets;
-        private int _rowIndex = 2;
+        private int _rowIndex = 1;
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
 
@@ -111,6 +111,12 @@ namespace NChanges.Tool
             _splitColumns = _columns.Split(',');
 
             var workbook = new HSSFWorkbook();
+
+            var headerCellStyle = workbook.CreateCellStyle();
+            var headerFont = workbook.CreateFont();
+            headerFont.Boldweight = (short)FontBoldWeight.BOLD;
+            headerCellStyle.SetFont(headerFont);
+
             string fileName = null;
 
             ISheet worksheet = null;
@@ -145,7 +151,7 @@ namespace NChanges.Tool
                     if (_multipleSheets || worksheet == null)
                     {
                         worksheet = workbook.CreateSheet(_multipleSheets ? name : "Changes");
-                        AddHeaders(worksheet);
+                        AddHeaders(worksheet, headerCellStyle);
                     }
 
                     AddData(report, worksheet);
@@ -179,7 +185,8 @@ namespace NChanges.Tool
                 ForEachColumn((i, f) =>
                     {
                         worksheet.AutoSizeColumn(i);
-                        worksheet.SetColumnWidth(i, worksheet.GetColumnWidth(i) + 512);
+                        // Units are 256 per character?
+                        worksheet.SetColumnWidth(i, worksheet.GetColumnWidth(i) + 1024);
                     });
             }
         }
@@ -192,11 +199,16 @@ namespace NChanges.Tool
             return report;
         }
 
-        private void AddHeaders(ISheet worksheet)
+        private void AddHeaders(ISheet worksheet, ICellStyle headerCellStyle)
         {
             var row = worksheet.CreateRow(0);
 
-            ForEachColumn((i, f) => row.CreateCell(i).SetCellValue(f.Header));
+            ForEachColumn((i, f) =>
+                {
+                    var cell = row.CreateCell(i);
+                    cell.SetCellValue(f.Header);
+                    cell.CellStyle = headerCellStyle;
+                });
         }
 
         private void AddData(AssemblyInfo report, ISheet worksheet)
@@ -227,7 +239,7 @@ namespace NChanges.Tool
 
             if (_multipleSheets)
             {
-                _rowIndex = 2;
+                _rowIndex = 1;
             }
 
             foreach (var dataRow in data)
