@@ -16,7 +16,7 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
-        private string _columns = "assembly,version,change,namespace,type,member,params,return";
+        private string _columns = "assembly,version,change,namespace,typeKind,type,memberKind,member,params,memberType";
         private string[] _splitColumns;
         private string _name;
         private bool _multipleSheets;
@@ -27,60 +27,55 @@ namespace NChanges.Tool
         static ExcelCommand()
         {
             _columnMap["assembly"] = new FieldInfo
-                                    {
-                                        Header = "Assembly",
-                                        Getter = (a, t, tc, m, mc) => a.Name
-                                    };
+                                     {
+                                         Header = "Assembly",
+                                         Getter = (a, t, tc, m, mc) => a.Name
+                                     };
             _columnMap["version"] = new FieldInfo
                                     {
                                         Header = "Version",
-                                        Getter = (a, t, tc, m, mc) =>
-                                            tc != null
-                                                ? tc.Version
-                                                : mc.Version
+                                        Getter = (a, t, tc, m, mc) => tc != null ? tc.Version : mc.Version
                                     };
             _columnMap["change"] = new FieldInfo
-                                    {
-                                        Header = "Change",
-                                        Getter = (a, t, tc, m, mc) =>
-                                            tc != null
-                                                ? tc.Kind.ToString()
-                                                : mc.Kind.ToString()
-                                    };
+                                   {
+                                       Header = "Change",
+                                       Getter = (a, t, tc, m, mc) => tc != null ? tc.Kind.ToString() : mc.Kind.ToString()
+                                   };
             _columnMap["namespace"] = new FieldInfo
-                                    {
-                                        Header = "Namespace",
-                                        Getter = (a, t, tc, m, mc) => t.Namespace
-                                    };
+                                      {
+                                          Header = "Namespace",
+                                          Getter = (a, t, tc, m, mc) => t.Namespace
+                                      };
+            _columnMap["typeKind"] = new FieldInfo
+                                     {
+                                         Header = "Type Kind",
+                                         Getter = (a, t, tc, m, mc) => t.Kind.ToString()
+                                     };
             _columnMap["type"] = new FieldInfo
-                                    {
-                                        Header = "Type",
-                                        Getter = (a, t, tc, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
-                                    };
+                                 {
+                                     Header = "Type",
+                                     Getter = (a, t, tc, m, mc) => t.Name
+                                 };
+            _columnMap["memberKind"] = new FieldInfo
+                                       {
+                                           Header = "Member Kind",
+                                           Getter = (a, t, tc, m, mc) => m != null ? m.Kind.ToString() : ""
+                                       };
             _columnMap["member"] = new FieldInfo
-                                    {
-                                        Header = "Member",
-                                        Getter = (a, t, tc, m, mc) =>
-                                            m != null
-                                                ? m.Name
-                                                : ""
-                                    };
+                                   {
+                                       Header = "Member",
+                                       Getter = (a, t, tc, m, mc) => m != null ? m.Name : ""
+                                   };
             _columnMap["params"] = new FieldInfo
-                                    {
-                                        Header = "Parameters",
-                                        Getter = (a, t, tc, m, mc) =>
-                                            m != null
-                                                ? string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray())
-                                                : ""
-                                    };
-            _columnMap["return"] = new FieldInfo
-                                    {
-                                        Header = "Return/Property/Event/Field Type",
-                                        Getter = (a, t, tc, m, mc) =>
-                                            m != null
-                                                ? TypeHelpers.NormalizeTypeName(m.Type)
-                                                : ""
-                                    };
+                                   {
+                                       Header = "Parameters",
+                                       Getter = (a, t, tc, m, mc) => m != null ? string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray()) : ""
+                                   };
+            _columnMap["memberType"] = new FieldInfo
+                                       {
+                                           Header = "Return/Property/Event/Field Type",
+                                           Getter = (a, t, tc, m, mc) => m != null ? TypeHelpers.NormalizeTypeName(m.Type) : ""
+                                       };
 
             // Where does change-specific information go (e.g., added parameter "foo")?
         }
