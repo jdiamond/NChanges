@@ -4,20 +4,53 @@ namespace NChanges.Core
 {
     public static class TypeHelpers
     {
-        private static readonly Regex NullableRegex = new Regex(@"^System.Nullable`1\[\[([^,\]]+)");
+        private static readonly Regex GenericTypesRegex = new Regex(
+            @",\s*[^,]+\s*,\s*Version=\d+\.\d+\.\d+\.\d+\s*,\s*Culture=[^,]+\s*,\s*PublicKeyToken=[^\]]+",
+            RegexOptions.IgnoreCase);
+
+        private static readonly Regex NullablePrefixRegex = new Regex(@"^System.Nullable`1\[\[([^,\]]+)");
+
+        private static readonly Regex GenericTypePrefixRegex = new Regex(@"^([^`]+)`\d+\[(.+)\]$");
+
+        private static readonly Regex GenericTypeParameterRegex = new Regex(@"\[([^]]+)\]");
+
+        public static string CleanUpGenericTypes(string type)
+        {
+            // Remove the version and other junk so that the parameters can be compared across versions.
+            // This only seems to be a problem with generic types (the inner types have the versions).
+            return GenericTypesRegex.Replace(type, "");
+        }
 
         public static string NormalizeTypeName(string typeName)
         {
-            var m = NullableRegex.Match(typeName);
+            typeName = CleanUpGenericTypes(typeName);
+
+            var m = NullablePrefixRegex.Match(typeName);
 
             if (m.Success)
             {
                 return NormalizeTypeName(m.Groups[1].Value) + "?";
             }
 
+            m = GenericTypePrefixRegex.Match(typeName);
+
+            if (m.Success)
+            {
+                var parameters = GenericTypeParameterRegex.Replace(m.Groups[2].Value, n => NormalizeTypeName(n.Groups[1].Value));
+
+                parameters = parameters.Replace(",", ", ");
+
+                return NormalizeTypeName(m.Groups[1].Value) + "<" + parameters + ">";
+            }
+
             if (typeName.EndsWith("[]"))
             {
                 return NormalizeTypeName(typeName.Substring(0, typeName.Length - 2)) + "[]";
+            }
+
+            if (typeName.StartsWith("[") && typeName.EndsWith("]"))
+            {
+                typeName = typeName.Substring(1, typeName.Length - 2);
             }
 
             switch (typeName)
@@ -52,10 +85,16 @@ namespace NChanges.Core
                     return "string";
                 case "System.Void":
                     return "void";
-
-                default:
-                    return typeName;
             }
+
+            var i = typeName.LastIndexOf(".", System.StringComparison.Ordinal);
+
+            if (i != -1)
+            {
+                return typeName.Substring(i + 1);
+            }
+
+            return typeName;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace NChanges.Core
@@ -13,10 +12,6 @@ namespace NChanges.Core
     {
         private List<ParameterInfo> _parameters = new List<ParameterInfo>();
         private List<MemberChangeInfo> _changes = new List<MemberChangeInfo>();
-
-        private static readonly Regex ParameterTypeRegex = new Regex(
-            @",\s*Version=\d+\.\d+\.\d+\.\d+,\s*Culture=[^,]+,\s*PublicKeyToken=[^\]]+",
-            RegexOptions.IgnoreCase);
 
         public string Name { get; set; }
         public MemberKind Kind { get; set; }
@@ -74,16 +69,9 @@ namespace NChanges.Core
                 Parameters.Add(new ParameterInfo
                                {
                                    Name = pi.Name,
-                                   Type = CleanUpParameterType(pi.ParameterType.FullName ?? pi.ParameterType.Name)
+                                   Type = TypeHelpers.CleanUpGenericTypes(pi.ParameterType.FullName ?? pi.ParameterType.Name)
                                });
             }
-        }
-
-        private static string CleanUpParameterType(string type)
-        {
-            // Remove the version and other junk so that the parameters can be compared across versions.
-            // This only seems to be a problem with generic types (the inner types have the versions).
-            return ParameterTypeRegex.Replace(type, "");
         }
 
         public void WriteXml(XmlWriter xmlWriter)

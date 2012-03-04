@@ -175,7 +175,7 @@ namespace MyNamespace
         }
 
         [Test]
-        public void It_strips_the_version_culture_and_public_key_token_from_parameter_types()
+        public void It_strips_the_assembly_version_culture_and_public_key_token_from_parameter_types()
         {
             var assemblyInfo = new AssemblyInfo();
 
@@ -191,7 +191,7 @@ namespace MyNamespace
 }"));
 
             Assert.AreEqual(
-                "System.Collections.Generic.IEnumerable`1[[MyNamespace.MyClass, MyAssembly]]",
+                "System.Collections.Generic.IEnumerable`1[[MyNamespace.MyClass]]",
                 assemblyInfo.Types.Single().Members.Get("MyMethod").Parameters.Single().Type);
         }
 

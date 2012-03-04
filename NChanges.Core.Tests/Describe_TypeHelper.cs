@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace NChanges.Core.Tests
 {
@@ -11,6 +12,8 @@ namespace NChanges.Core.Tests
             Assert.AreEqual("int", TypeHelpers.NormalizeTypeName(typeof(int).FullName));
             Assert.AreEqual("int[]", TypeHelpers.NormalizeTypeName(typeof(int[]).FullName));
             Assert.AreEqual("int?", TypeHelpers.NormalizeTypeName(typeof(int?).FullName));
+            Assert.AreEqual("List<int>", TypeHelpers.NormalizeTypeName(typeof(List<int>).FullName));
+            Assert.AreEqual("Dictionary<int, string>", TypeHelpers.NormalizeTypeName(typeof(Dictionary<int, string>).FullName));
         }
     }
 }
