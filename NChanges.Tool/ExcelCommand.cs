@@ -180,8 +180,10 @@ namespace NChanges.Tool
                 ForEachColumn((i, f) =>
                     {
                         worksheet.AutoSizeColumn(i);
-                        // Units are 256 per character?
-                        worksheet.SetColumnWidth(i, worksheet.GetColumnWidth(i) + 1024);
+                        // Units are 256 per character.
+                        // Maximum width is 255 characters.
+                        var width = Math.Min(worksheet.GetColumnWidth(i) + 1024, 255 * 256);
+                        worksheet.SetColumnWidth(i, width);
                     });
             }
         }
