@@ -34,6 +34,8 @@
                     return "ushort";
                 case "System.String":
                     return "string";
+                case "System.Void":
+                    return "void";
 
                 default:
                     return typeName;

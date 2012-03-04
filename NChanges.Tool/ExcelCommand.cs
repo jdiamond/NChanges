@@ -29,13 +29,11 @@ namespace NChanges.Tool
             _columnMap["assembly"] = new FieldInfo
                                     {
                                         Header = "Assembly",
-                                        Width = 3000,
                                         Getter = (a, t, tc, m, mc) => a.Name
                                     };
             _columnMap["version"] = new FieldInfo
                                     {
                                         Header = "Version",
-                                        Width = 3000,
                                         Getter = (a, t, tc, m, mc) =>
                                             tc != null
                                                 ? tc.Version
@@ -44,7 +42,6 @@ namespace NChanges.Tool
             _columnMap["change"] = new FieldInfo
                                     {
                                         Header = "Change",
-                                        Width = 5000,
                                         Getter = (a, t, tc, m, mc) =>
                                             tc != null
                                                 ? tc.Kind.ToString()
@@ -53,19 +50,16 @@ namespace NChanges.Tool
             _columnMap["namespace"] = new FieldInfo
                                     {
                                         Header = "Namespace",
-                                        Width = 15000,
                                         Getter = (a, t, tc, m, mc) => t.Namespace
                                     };
             _columnMap["type"] = new FieldInfo
                                     {
                                         Header = "Type",
-                                        Width = 12000,
                                         Getter = (a, t, tc, m, mc) => t.Kind.ToString().ToLower() + " " + t.Name
                                     };
             _columnMap["member"] = new FieldInfo
                                     {
                                         Header = "Member",
-                                        Width = 12000,
                                         Getter = (a, t, tc, m, mc) =>
                                             m != null
                                                 ? m.Name
@@ -74,7 +68,6 @@ namespace NChanges.Tool
             _columnMap["params"] = new FieldInfo
                                     {
                                         Header = "Parameters",
-                                        Width = 10000,
                                         Getter = (a, t, tc, m, mc) =>
                                             m != null
                                                 ? string.Join(", ", m.Parameters.Select(mi => TypeHelpers.NormalizeTypeName(mi.Type) + " " + mi.Name).ToArray())
@@ -82,22 +75,19 @@ namespace NChanges.Tool
                                     };
             _columnMap["return"] = new FieldInfo
                                     {
-                                        Header = "Return Type",
-                                        Width = 5000,
-                                        Getter = (a, t, tc, m, mc) => "" // TODO: Uh...
+                                        Header = "Return/Property/Event/Field Type",
+                                        Getter = (a, t, tc, m, mc) =>
+                                            m != null
+                                                ? TypeHelpers.NormalizeTypeName(m.Type)
+                                                : ""
                                     };
 
-            // What about property types?
-            // What about type changes (new/removed types)?
-            // Should type kind be its own column (so it can be used to filter)?
             // Where does change-specific information go (e.g., added parameter "foo")?
-            // Should users be able to configure headers and widths?
         }
 
         private class FieldInfo
         {
             public string Header { get; set; }
-            public int Width { get; set; }
             public Getter Getter { get; set; }
         }
 

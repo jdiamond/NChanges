@@ -280,6 +280,31 @@ namespace NChanges.Core.Tests
         }
 
         [Test]
+        public void It_detects_the_type_of_each_member()
+        {
+            var typeInfo = new TypeInfo();
+
+            typeInfo.ReadType(Compiler.GetType(
+@"namespace MyNamespace
+{
+    public class MyClass
+    {
+        public MyClass() { }
+        public string MyMethod() { return null; }
+        public int MyProperty { get; set; }
+        public event System.EventHandler MyEvent;
+        public int MyField;
+    }
+}"));
+
+            Assert.IsTrue(typeInfo.Members.Any(m => m.Name == ".ctor" && m.Type == ""));
+            Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyMethod" && m.Type == "System.String"));
+            Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyProperty" && m.Type == "System.Int32"));
+            Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyEvent" && m.Type == "System.EventHandler"));
+            Assert.IsTrue(typeInfo.Members.Any(m => m.Name == "MyField" && m.Type == "System.Int32"));
+        }
+
+        [Test]
         public void It_detects_Obsolete_attributes()
         {
             var typeInfo = new TypeInfo();

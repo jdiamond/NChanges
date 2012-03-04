@@ -86,6 +86,7 @@ namespace MyNamespace
                                                        {
                                                            Name = "MyMethod",
                                                            Kind = MemberKind.Method,
+                                                           Type = "System.String",
                                                            Obsolete = true,
                                                            ObsoleteMessage = "I'm also obsolete!",
                                                            Parameters =
@@ -126,7 +127,7 @@ namespace MyNamespace
 @"<assembly name=""MyAssembly"" version=""1"">
   <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"" obsolete=""True"" obsoleteMessage=""I'm obsolete!"">
     <change kind=""AddedType"" version=""1"" />
-    <member name=""MyMethod"" kind=""Method"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
+    <member name=""MyMethod"" kind=""Method"" type=""System.String"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
       <change kind=""AddedMember"" version=""1"" old=""old value"" new=""new value"" />
       <param name=""myParameter"" type=""System.Int32"" />
     </member>
@@ -144,7 +145,7 @@ namespace MyNamespace
 @"<assembly name=""MyAssembly"" version=""1"">
   <type name=""MyClass"" namespace=""MyNamespace"" kind=""Class"" obsolete=""True"" obsoleteMessage=""I'm obsolete!"">
     <change kind=""AddedType"" version=""1"" />
-    <member name=""MyMethod"" kind=""Method"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
+    <member name=""MyMethod"" kind=""Method"" type=""System.String"" obsolete=""True"" obsoleteMessage=""I'm also obsolete!"">
       <change kind=""AddedMember"" version=""1"" old=""old value"" new=""new value"" />
       <param name=""myParameter"" type=""System.Int32"" />
     </member>
@@ -162,6 +163,7 @@ namespace MyNamespace
             Assert.AreEqual("1", assemblyInfo.Types.Single().Changes.Single().Version);
             Assert.AreEqual("MyMethod", assemblyInfo.Types.Single().Members.Single().Name);
             Assert.AreEqual(MemberKind.Method, assemblyInfo.Types.Single().Members.Single().Kind);
+            Assert.AreEqual("System.String", assemblyInfo.Types.Single().Members.Single().Type);
             Assert.IsTrue(assemblyInfo.Types.Single().Members.Single().Obsolete);
             Assert.AreEqual("I'm also obsolete!", assemblyInfo.Types.Single().Members.Single().ObsoleteMessage);
             Assert.AreEqual(MemberChangeKind.AddedMember, assemblyInfo.Types.Single().Members.Single().Changes.Single().Kind);

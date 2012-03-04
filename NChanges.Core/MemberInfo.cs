@@ -14,16 +14,17 @@ namespace NChanges.Core
         private List<ParameterInfo> _parameters = new List<ParameterInfo>();
         private List<MemberChangeInfo> _changes = new List<MemberChangeInfo>();
 
+        private static readonly Regex ParameterTypeRegex = new Regex(
+            @",\s*Version=\d+\.\d+\.\d+\.\d+,\s*Culture=[^,]+,\s*PublicKeyToken=[^\]]+",
+            RegexOptions.IgnoreCase);
+
         public string Name { get; set; }
         public MemberKind Kind { get; set; }
+        public string Type { get; set; }
         public bool Obsolete { get; set; }
         public string ObsoleteMessage { get; set; }
         public IList<ParameterInfo> Parameters { get { return _parameters; } }
         public ICollection<MemberChangeInfo> Changes { get { return _changes; } }
-
-        private static readonly Regex ParameterTypeRegex = new Regex(
-            @",\s*Version=\d+\.\d+\.\d+\.\d+,\s*Culture=[^,]+,\s*PublicKeyToken=[^\]]+",
-            RegexOptions.IgnoreCase);
 
         public void ReadMember(System.Reflection.MemberInfo memberInfo)
         {
@@ -32,24 +33,29 @@ namespace NChanges.Core
             if (memberInfo is ConstructorInfo)
             {
                 Kind = MemberKind.Constructor;
+                Type = "";
                 ReadParameters(((ConstructorInfo)memberInfo).GetParameters());
             }
             else if (memberInfo is MethodInfo)
             {
                 Kind = MemberKind.Method;
+                Type = ((MethodInfo)memberInfo).ReturnType.FullName;
                 ReadParameters(((MethodInfo)memberInfo).GetParameters());
             }
             else if (memberInfo is PropertyInfo)
             {
                 Kind = MemberKind.Property;
+                Type = ((PropertyInfo)memberInfo).PropertyType.FullName;
             }
             else if (memberInfo is EventInfo)
             {
                 Kind = MemberKind.Event;
+                Type = ((EventInfo)memberInfo).EventHandlerType.FullName;
             }
             else if (memberInfo is FieldInfo)
             {
                 Kind = MemberKind.Field;
+                Type = ((FieldInfo)memberInfo).FieldType.FullName;
             }
 
             var obsoleteAttribute = (ObsoleteAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(ObsoleteAttribute));
@@ -86,6 +92,7 @@ namespace NChanges.Core
 
             xmlWriter.WriteAttributeString("name", Name);
             xmlWriter.WriteAttributeString("kind", Kind.ToString());
+            xmlWriter.WriteAttributeString("type", Type);
 
             if (Obsolete)
             {
@@ -114,9 +121,9 @@ namespace NChanges.Core
         {
             Name = xmlReader.GetAttribute("name");
             Kind = (MemberKind)Enum.Parse(typeof(MemberKind), xmlReader.GetAttribute("kind"));
+            Type = xmlReader.GetAttribute("type");
             Obsolete = string.Equals(xmlReader.GetAttribute("obsolete"), "true", StringComparison.OrdinalIgnoreCase);
             ObsoleteMessage = xmlReader.GetAttribute("obsoleteMessage");
-
 
             if (!xmlReader.IsEmptyElement)
             {
