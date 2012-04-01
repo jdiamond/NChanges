@@ -21,11 +21,17 @@ namespace NChanges.Tool
         private string _name;
         private bool _multipleSheets;
         private int _rowIndex = 1;
+        private static string _currentName;
 
         private static readonly Dictionary<string, FieldInfo> _columnMap = new Dictionary<string, FieldInfo>();
 
         static ExcelCommand()
         {
+            _columnMap["name"] = new FieldInfo
+                                     {
+                                         Header = "Name",
+                                         Getter = (a, t, tc, m, mc) => _currentName
+                                     };
             _columnMap["assembly"] = new FieldInfo
                                      {
                                          Header = "Assembly",
@@ -95,13 +101,18 @@ namespace NChanges.Tool
                              { "o|output=", "output file", v => _output = v },
                              { "c|columns=", "columns", v => _columns = v },
                              { "m|multiple-sheets", "create a new worksheet for each report", v => _multipleSheets = true },
-                             { "n|name=", "worksheet name regex pattern", v => _name = v }
+                             { "n|name=", "library name regex pattern", v => _name = v }
                          };
         }
 
         public void Run(IEnumerable<string> args)
         {
             var extras = _optionSet.Parse(args);
+
+            if (!string.IsNullOrEmpty(_name) && !_multipleSheets)
+            {
+                _columns = "name," + _columns;
+            }
 
             _splitColumns = _columns.Split(',');
 
@@ -127,25 +138,25 @@ namespace NChanges.Tool
 
                 if (report.HasChanges())
                 {
-                    var name = report.Name;
+                    _currentName = report.Name;
 
                     if (!string.IsNullOrEmpty(_name))
                     {
-                        var match = Regex.Match(name, _name);
+                        var match = Regex.Match(_currentName, _name);
 
                         if (match.Success)
                         {
-                            name = match.Groups
-                                        .Cast<Group>()
-                                        .Skip(1)
-                                        .First(g => !string.IsNullOrEmpty(g.Value))
-                                        .Value;
+                            _currentName = match.Groups
+                                                .Cast<Group>()
+                                                .Skip(1)
+                                                .First(g => !string.IsNullOrEmpty(g.Value))
+                                                .Value;
                         }
                     }
 
                     if (_multipleSheets || worksheet == null)
                     {
-                        worksheet = workbook.CreateSheet(_multipleSheets ? name : "Changes");
+                        worksheet = workbook.CreateSheet(_multipleSheets ? _currentName : "Changes");
                         AddHeaders(worksheet, headerCellStyle);
                     }
 
