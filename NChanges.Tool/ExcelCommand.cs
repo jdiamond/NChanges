@@ -16,7 +16,7 @@ namespace NChanges.Tool
     {
         private readonly OptionSet _optionSet;
         private string _output = "%name%-%version%-report.xls";
-        private string _columns = "assembly,version,change,namespace,typeKind,type,memberKind,member,params,memberType";
+        private string _columns = "assembly,version,change,changeDetails,namespace,typeKind,type,memberKind,member,params,memberType";
         private string[] _splitColumns;
         private string _name;
         private bool _multipleSheets;
@@ -47,6 +47,11 @@ namespace NChanges.Tool
                                        Header = "Change",
                                        Getter = (a, t, tc, m, mc) => tc != null ? tc.Kind.ToString() : mc.Kind.ToString()
                                    };
+            _columnMap["changeDetails"] = new FieldInfo
+                                          {
+                                              Header = "Change Details",
+                                              Getter = (a, t, tc, m, mc) => GetDetails(tc, mc)
+                                          };
             _columnMap["namespace"] = new FieldInfo
                                       {
                                           Header = "Namespace",
@@ -90,6 +95,33 @@ namespace NChanges.Tool
         {
             public string Header { get; set; }
             public Getter Getter { get; set; }
+        }
+
+        private static string GetDetails(TypeChangeInfo tc, MemberChangeInfo mc)
+        {
+            if (mc != null)
+            {
+                var detail = "";
+
+                if (!string.IsNullOrEmpty(mc.Old))
+                {
+                    detail = mc.Old;
+
+                    if (!string.IsNullOrEmpty(mc.New))
+                    {
+                        detail += " \u2192 ";
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(mc.New))
+                {
+                    detail += mc.New;
+                }
+
+                return detail;
+            }
+
+            return null;
         }
 
         private delegate string Getter(AssemblyInfo a, TypeInfo t, TypeChangeInfo tc, MemberInfo m, MemberChangeInfo mi);
